@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\utilities.cpp" />
+    <ClCompile Include="src\packets.cpp" />
+    <ClCompile Include="src\ServerClient.cpp" />
+    <ClCompile Include="src\Player.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\utilities.h" />
+    <ClInclude Include="src\packets.h" />
+    <ClInclude Include="src\ServerClient.h" />
+    <ClInclude Include="src\Player.h" />
+    <ClInclude Include="src\Globals.h" />
+  </ItemGroup>
+</Project>
