@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "Snake.h"
+#include "Fruit.h"
 #include <SFML/Graphics.hpp>
 
 int main()
@@ -55,8 +56,8 @@ int main()
 		window.clear(sf::Color::White);
 
 		// delay
-		if (clock.getElapsedTime() > sf::seconds(0.01)) {
-			snake.eatAndMove(snake.m_direction);
+		if (clock.getElapsedTime() > sf::seconds(0.2)) {
+			snake.move(fruit);
 			clock.restart();
 		}
 

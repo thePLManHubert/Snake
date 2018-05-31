@@ -1,69 +1,50 @@
 #include "Snake.h"
 
 Snake::Snake(sf::Vector2i headPosition) 
-	: m_head(headPosition), m_direction(STOP), m_fruits(0), m_nSegments(0) 
-{
-}
+	: m_head(headPosition), m_direction(STOP), m_fruits(0) {}
 
 Snake::~Snake() {
-	for (int i = 0; i < m_nSegments; ++i) {
-		delete m_segments[i];
-	}
+	m_body.deleteAllSegments();
 }
 
 void Snake::setDirection(Direction direction) {
 	m_direction = direction;
 }
 
-void Snake::move() {
-	move(m_direction);
+void Snake::move(Fruit& fruit) {
+	move(m_direction, fruit);
 }
 
-void Snake::move(Direction direction) {
-	
-	if (m_nSegments) {
-		for (int i = m_nSegments - 1; i >= 0; --i) {
-			m_segments[i]->follow(*m_segments[i - 1]);
-		}
-		m_segments[0]->follow(m_head);
-	}
-
+void Snake::move(Direction direction, Fruit& fruit) {
 	m_head.move(direction);
-}
-
-void Snake::eatAndMove() {
-	eatAndMove(m_direction);
+	if (fruit.getPosition() == m_head.getPosition()) {
+		m_body.grow(m_head);
+		fruit.setPosition(fruit.preparePosition());
+		m_fruits++;
+	}
+	else
+		m_body.follow(m_head);
 }
 
 void Snake::draw(sf::RenderTarget & target, sf::RenderStates states) const {
-	if (m_nSegments)
-		for ( int i = m_nSegments - 1; i >= 0; --i)
-			target.draw(*m_segments[m_nSegments]);
+	if (m_body.tail) {
+		Body::Segment * segment = m_body.tail;
+		while (segment->next) {
+			target.draw(*segment);
+			segment = segment->next;
+		}
+		target.draw(*segment);
+	}
 	target.draw(m_head);
 }
 
-void Snake::eatAndMove(Direction direction) {
+Snake::Head::Head(sf::Vector2i position)
+	: Field(position, SnakeBlock), m_prev_position(0, 0) {}
 
-	m_fruits++;
+void  Snake::Head::move(Direction direction) {
+	if (direction != STOP)
+		m_prev_position = m_position;
 
-	if (m_nSegments < 100) {
-		if (!m_nSegments)
-			m_segments[m_nSegments] = new Segment(m_head.getPosition());
-		else
-			m_segments[m_nSegments] = new Segment(m_segments[m_nSegments - 1]->getPosition());
-		m_nSegments++;
-	}
-	move(direction);
-}
-
-Snake::Head::Head(sf::Vector2i position) {
-	m_type = SnakeBlock;
-	setPosition(position);
-	setTexture();
-}
-
-sf::Vector2i Snake::Head::move(Direction direction)
-{
 	switch (direction) {
 	case UP:
 		setPosition(m_position.x, m_position.y - FIELD_HEIGHT);
@@ -88,17 +69,55 @@ sf::Vector2i Snake::Head::move(Direction direction)
 	case STOP:
 		break;
 	}
-	return m_position;
 }
 
-Snake::Segment::Segment(sf::Vector2i position) {
-	m_type = SnakeBlock;
-	setPosition(position);
+sf::Vector2i Snake::Head::getPrevPos() const {
+	return m_prev_position;
+}
+
+Snake::Body::Segment::Segment(sf::Vector2i position) 
+	: Field(position, SnakeBlock) {
 	setTexture();
+	next = nullptr;
 }
 
-sf::Vector2i Snake::Segment::follow(const Field& field) {
-	setPosition(field);
+Snake::Body::Body()
+	: tail(nullptr) {}
 
-	return m_position;
+void Snake::Body::follow(const Head & head) {
+	if (!tail) return;
+
+	if (!tail->next)
+		tail->setPosition(head.getPrevPos());
+	else {
+		Segment * segment = tail;
+		while (segment->next) {
+			segment->setPosition(segment->next->getPosition());
+			segment = segment->next;
+		}
+		segment->setPosition(head.getPrevPos());
+	}
 }
+
+void Snake::Body::grow(const Head & head) {
+	if (!tail)
+		tail = new Segment(head.getPrevPos());
+	else {
+		Segment * segment = tail;
+		while (segment->next) segment = segment->next;
+		segment->next = new Segment(head.getPrevPos());
+	}
+}
+
+void Snake::Body::deleteAllSegments() {
+	if (!tail) return;
+
+	Segment *prev, *temp = tail;
+	while (temp->next) {
+		prev = temp;
+		temp = temp->next;
+		delete prev;
+	}
+	delete temp;
+}
+

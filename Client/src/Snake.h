@@ -2,33 +2,56 @@
 #include "Field.h"
 #include "Fruit.h"
 #include <SFML/Graphics.hpp>
-#include <vector>
 
 extern const int MAP_WIDTH;
 extern const int MAP_HEIGHT;
+
 
 class Snake : public sf::Drawable {
 public:
 	enum Direction { UP, DOWN, LEFT, RIGHT, STOP};
 
 	class Head : public Field {
+	private:
+		sf::Vector2i m_prev_position;
+
 	public:
 		Head(sf::Vector2i position);
-		sf::Vector2i move(Direction direction);
+
+	public:
+		void move(Direction direction);
+		sf::Vector2i getPrevPos() const;
 
 	};
 
-	class Segment : public Field {
+	class Body {
 	public:
-		Segment(sf::Vector2i position);
-		sf::Vector2i follow(const Field& field);
+
+		class Segment : public Field {
+		public:
+			Segment * next;
+
+		public:
+			Segment(sf::Vector2i position);
+
+		};
+
+	public:
+		Segment * tail;
+
+	public:
+		Body();
+
+	public:
+		void follow(const Head& head);
+		void grow(const Head& head);
+		void deleteAllSegments();
 
 	};
 
 public:
 	Head m_head;
-	Segment* m_segments[100];
-	int m_nSegments;
+	Body m_body;
 	Direction m_direction;
 	int m_fruits;
 
@@ -38,10 +61,8 @@ public:
 
 	void setDirection(Direction direction);
 
-	void move();
-	void move(Direction direction);
-	void eatAndMove();
-	void eatAndMove(Direction direction);
+	void move(Fruit& fruit);
+	void move(Direction direction, Fruit& fruit);
 
 private:
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;

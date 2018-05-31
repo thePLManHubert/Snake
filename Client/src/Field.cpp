@@ -1,19 +1,11 @@
 #include "Field.h"
 
 
-Field::Field()
-	: m_position(0, 0), m_type(EmptyBlock) {
-	setTexture();
-}
-
-
 Field::Field(sf::Vector2i position, Type type)
 	: m_position(position), m_type(type) {
 	setTexture();
+	m_sprite.setPosition((sf::Vector2f)m_position);
 }
-
-Field::~Field() {}
-
 
 void Field::setPosition(int x, int y) {
 	m_position.x = x;
@@ -21,7 +13,7 @@ void Field::setPosition(int x, int y) {
 	m_sprite.setPosition((sf::Vector2f)m_position);
 }
 
-void Field::setPosition(sf::Vector2i position) {
+void Field::setPosition(const sf::Vector2i position) {
 	m_position = position;
 	m_sprite.setPosition((sf::Vector2f)m_position);
 }
