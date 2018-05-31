@@ -11,20 +11,25 @@ public:
 
 protected:
 	sf::Vector2i m_position;
+	float m_rotation;
 	Type m_type;
 	sf::Texture m_texture;
 	sf::Sprite m_sprite;
 
 public:
 	Field(sf::Vector2i position, Type type = EmptyBlock);
+	Field(sf::Vector2i position, int rotation = 0, Type type = EmptyBlock);
 
+public:
 	sf::Vector2i getPosition() const;
 	Type getType() const;
 	sf::Sprite& getSprite();
+	int getRotation() const;
 
 	void setPosition(int x, int y);
 	void setPosition(const sf::Vector2i position);
 	void setPosition(const Field& field);
+	void setRotation(int rotation);
 
 protected:
 	void setTexture();

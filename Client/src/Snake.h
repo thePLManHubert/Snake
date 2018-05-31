@@ -32,7 +32,7 @@ public:
 			Segment * next;
 
 		public:
-			Segment(sf::Vector2i position);
+			Segment(sf::Vector2i position, int rotation = 0, Type type = SnakeBlock);
 
 		};
 

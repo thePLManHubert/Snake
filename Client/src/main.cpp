@@ -9,6 +9,7 @@ int main()
 	sf::RenderWindow window(sf::VideoMode(MAP_WIDTH, MAP_HEIGHT), "My window");
 
 	// game clock
+	const float SPEED = 10;
 	sf::Clock clock;
 
 	// creating objects
@@ -56,7 +57,7 @@ int main()
 		window.clear(sf::Color::White);
 
 		// delay
-		if (clock.getElapsedTime() > sf::seconds(0.2)) {
+		if (clock.getElapsedTime() > sf::seconds(1/SPEED)) {
 			snake.move(fruit);
 			clock.restart();
 		}
