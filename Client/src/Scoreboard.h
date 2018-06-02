@@ -10,6 +10,7 @@ private:
 	int m_height;
 	Snake ** m_snakes;
 	sf::Clock * m_clockPtr; // from game
+	sf::Text * m_timeText;
 	sf::VertexArray m_vertices;
 	sf::Texture m_texture;
 	sf::Font m_font;

@@ -12,6 +12,9 @@ Scoreboard::~Scoreboard() {
 		delete m_score[player];
 	}
 	delete[] m_score;
+	delete m_timeText;
+	m_score = nullptr;
+	m_timeText = nullptr;
 }
 
 bool Scoreboard::load(const std::string & tileset, const std::string & fontName){
@@ -19,6 +22,12 @@ bool Scoreboard::load(const std::string & tileset, const std::string & fontName)
 		return false;
 	if (!m_font.loadFromFile(fontName))
 		return false;
+
+	m_timeText = new sf::Text();
+	m_timeText->setFont(m_font);
+	m_timeText->setCharacterSize(24);
+	m_timeText->setFillColor(sf::Color::Black);
+	m_timeText->setPosition(sf::Vector2f(MAP_WIDTH / 2 - 24, MAP_HEIGHT + m_height - 26));
 
 	m_vertices.setPrimitiveType(sf::PrimitiveType::Quads);
 	m_vertices.resize(m_nPlayers * 4);
@@ -42,9 +51,9 @@ bool Scoreboard::load(const std::string & tileset, const std::string & fontName)
 		quad[3].texCoords = sf::Vector2f(0, 64);
 
 		quad[0].color =
-		quad[1].color =
+		quad[1].color = m_snakes[player]->m_color;
 		quad[2].color =
-		quad[3].color = m_snakes[player]->m_color;
+		quad[3].color = sf::Color::White;
 	}
 
 	return true;
@@ -68,4 +77,14 @@ void Scoreboard::draw(sf::RenderTarget & target, sf::RenderStates states) const 
 
 		target.draw(*m_score[player]);
 	}
+
+	int time = (int)m_clockPtr->getElapsedTime().asSeconds();
+	int min = 2 -  time / 60;
+	int sec = 59 - time % 60;
+	std::string zero_str;
+	(sec > 9) ? zero_str = "" : zero_str = "0";
+	std::string time_str = std::to_string(min) + ":" + zero_str + std::to_string(sec);
+
+	m_timeText->setString(time_str);
+	target.draw(*m_timeText);
 }
