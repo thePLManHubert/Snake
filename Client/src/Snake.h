@@ -16,7 +16,7 @@ public:
 		sf::Vector2i m_prev_position;
 
 	public:
-		Head(sf::Vector2i position);
+		Head(sf::Vector2i position, sf::Color color = sf::Color::White);
 
 	public:
 		void move(Direction direction);
@@ -32,7 +32,7 @@ public:
 			Segment * next;
 
 		public:
-			Segment(sf::Vector2i position, int rotation = 0, Type type = SnakeBlock);
+			Segment(sf::Vector2i position, int rotation = 0, sf::Color color = sf::Color::White, Type type = BodyBlock);
 
 		};
 
@@ -54,15 +54,18 @@ public:
 	Body m_body;
 	Direction m_direction;
 	int m_fruits;
+	sf::Color m_color;
+	int m_limit;
 
 public:
-	Snake(sf::Vector2i headPosition);
+	Snake(sf::Vector2i headPosition, sf::Color color, int limit = 1000);
 	~Snake();
 
 	void setDirection(Direction direction);
+	void setPosition(sf::Vector2i position);
 
 	void move(Fruit& fruit);
-	void move(Direction direction, Fruit& fruit);
+	void moveAutomatically(Fruit& fruit);
 
 private:
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;

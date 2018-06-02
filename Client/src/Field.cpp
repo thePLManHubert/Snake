@@ -2,14 +2,29 @@
 
 
 Field::Field(sf::Vector2i position, Type type)
-	: m_position(position), m_rotation(0), m_type(type) {
+	: m_position(position), m_rotation(0), m_color(sf::Color::White), m_type(type) {
 	setTexture();
 	m_sprite.setPosition((sf::Vector2f)m_position);
 }
 
-Field::Field(sf::Vector2i position, int rotation, Type type)
-	: m_position(position), m_rotation(rotation), m_type(type) {
+Field::Field(sf::Vector2i position, sf::Color color, Type type) 
+	: m_position(position), m_rotation(0), m_color(color), m_type(type) {
 	setTexture();
+	m_sprite.setColor(m_color);
+	m_sprite.setPosition((sf::Vector2f)m_position);
+}
+
+Field::Field(sf::Vector2i position, int rotation, Type type)
+	: m_position(position), m_rotation(rotation), m_color(sf::Color::White), m_type(type) {
+	setTexture();
+	m_sprite.setPosition((sf::Vector2f)m_position);
+	setRotation(m_rotation);
+}
+
+Field::Field(sf::Vector2i position, int rotation, sf::Color color, Type type)
+	: m_position(position), m_rotation(rotation), m_color(color), m_type(type) {
+	setTexture();
+	m_sprite.setColor(m_color);
 	m_sprite.setPosition((sf::Vector2f)m_position);
 	setRotation(m_rotation);
 }
@@ -54,20 +69,20 @@ sf::Vector2i Field::getPosition() const {
 }
 
 void Field::setTexture() {
-	m_texture.loadFromFile("resources/Textures.png");
+	m_texture.loadFromFile("resources/TransparentWhite.png");
 	m_sprite.setTexture(m_texture);
 
 	switch(m_type) {
-	case EmptyBlock:
+	case TailBlock:
 		m_sprite.setTextureRect(sf::IntRect(0, 0, FIELD_WIDTH, FIELD_HEIGHT));
 		break;
-	case SnakeBlock:
+	case BodyBlock:
 		m_sprite.setTextureRect(sf::IntRect(0, FIELD_HEIGHT, FIELD_WIDTH, FIELD_HEIGHT));
 		break;
 	case FruitBlock:
 		m_sprite.setTextureRect(sf::IntRect(FIELD_WIDTH, 0, FIELD_WIDTH, FIELD_HEIGHT));
 		break;
-	case WallBlock:
+	case HeadBlock:
 		m_sprite.setTextureRect(sf::IntRect(FIELD_WIDTH, FIELD_HEIGHT, FIELD_WIDTH, FIELD_HEIGHT));
 		break;
 	}
@@ -87,4 +102,8 @@ sf::Sprite & Field::getSprite() {
 
 int Field::getRotation() const {
 	return m_rotation;
+}
+
+sf::Color Field::getColor() const {
+	return m_color;
 }

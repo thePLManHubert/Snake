@@ -8,6 +8,7 @@
     <ClCompile Include="src\Field.cpp" />
     <ClCompile Include="src\Fruit.cpp" />
     <ClCompile Include="src\TileMap.cpp" />
+    <ClCompile Include="src\Scoreboard.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Client.h" />
@@ -16,5 +17,6 @@
     <ClInclude Include="src\Field.h" />
     <ClInclude Include="src\Fruit.h" />
     <ClInclude Include="src\TileMap.h" />
+    <ClInclude Include="src\Scoreboard.h" />
   </ItemGroup>
 </Project>
