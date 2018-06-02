@@ -1,10 +1,17 @@
 #include "Scoreboard.h"
 
 
-Scoreboard::Scoreboard(Snake ** snakes, int nPlayers, sf::Clock * clock, int height, const std::string & tileset, const std::string & fontName)
-	: m_nPlayers(nPlayers), m_snakes(snakes), m_clockPtr(clock), m_height(height), m_position(sf::Vector2i(0, MAP_HEIGHT)) {
+Scoreboard::Scoreboard(Snake ** snakes, int nPlayers, sf::Clock * clock, int startTime, int height, const std::string & tileset, const std::string & fontName)
+	: m_nPlayers(nPlayers),
+	m_snakes(snakes),
+	m_clockPtr(clock),
+	m_prevTime(0),
+	m_height(height), 
+	m_position(sf::Vector2i(0, MAP_HEIGHT)) 
+{
+	m_min = (startTime) / 60;
+	m_sec = (startTime) % 60;
 	load(tileset, fontName);
-	createScore(snakes, m_nPlayers);
 }
 
 Scoreboard::~Scoreboard() {
@@ -37,6 +44,8 @@ bool Scoreboard::load(const std::string & tileset, const std::string & fontName)
 	for (int player = 0; player < m_nPlayers; player++) {
 
 		m_score[player] = new sf::Text("", m_font, 19);
+		m_score[player]->setFillColor(sf::Color::Black);
+		m_score[player]->setPosition(sf::Vector2f(player*MAP_WIDTH / m_nPlayers + m_position.x + MAP_WIDTH / m_nPlayers / 2, m_position.y + 16));
 
 		sf::Vertex* quad = &m_vertices[player * 4];
 
@@ -59,9 +68,49 @@ bool Scoreboard::load(const std::string & tileset, const std::string & fontName)
 	return true;
 }
 
-bool Scoreboard::createScore(Snake ** snake, int nPlayers)
-{
-	return false;
+bool Scoreboard::tick() {
+	if (m_prevTime != (int)m_clockPtr->getElapsedTime().asSeconds()) {
+		m_prevTime++;
+		return true;
+	}
+	else return false;
+}
+
+void Scoreboard::updateScore() {
+	for (int player = 0; player < m_nPlayers; player++) {
+		auto str = std::to_string(m_snakes[player]->m_fruits);
+		m_score[player]->setString(str);
+	}
+}
+
+void Scoreboard::updateTime() {
+
+	if (tick()) {
+		m_sec--;
+		if (m_sec < 0) {
+			m_sec = 59; m_min--;
+		}
+	}
+	std::string zero_str = "0";
+	if (m_sec > 9) zero_str = "";
+	std::string time_str = std::to_string(m_min) + ":" + zero_str + std::to_string(m_sec);
+
+	m_timeText->setString(time_str);
+}
+
+void Scoreboard::update() {
+	updateScore();
+	updateTime();
+}
+
+void Scoreboard::setTime(int time) {
+	m_min = time / 60;
+	m_sec = time % 60;
+	m_prevTime = 0;
+}
+
+bool Scoreboard::timeUp() {
+	return (m_min == 0 && m_sec == 0);
 }
 
 void Scoreboard::draw(sf::RenderTarget & target, sf::RenderStates states) const {
@@ -70,21 +119,8 @@ void Scoreboard::draw(sf::RenderTarget & target, sf::RenderStates states) const 
 	target.draw(m_vertices, states);
 
 	for (int player = 0; player < m_nPlayers; player++) {
-		auto str = std::to_string(m_snakes[player]->m_fruits);
-		m_score[player]->setString(str);
-		m_score[player]->setFillColor(sf::Color::Black);
-		m_score[player]->setPosition(sf::Vector2f(player*MAP_WIDTH / m_nPlayers + m_position.x + MAP_WIDTH / m_nPlayers / 2, m_position.y + 16));
-
 		target.draw(*m_score[player]);
 	}
 
-	int time = (int)m_clockPtr->getElapsedTime().asSeconds();
-	int min = 2 -  time / 60;
-	int sec = 59 - time % 60;
-	std::string zero_str;
-	(sec > 9) ? zero_str = "" : zero_str = "0";
-	std::string time_str = std::to_string(min) + ":" + zero_str + std::to_string(sec);
-
-	m_timeText->setString(time_str);
 	target.draw(*m_timeText);
 }
