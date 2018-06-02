@@ -17,6 +17,7 @@ int main()
 	float SPEED = 10;
 	sf::Clock clock;
 
+	sf::Clock gameClock;
 	// creating objects
 	int snakesLength = 20;
 	Snake snake({ 5 * FIELD_WIDTH, 5 * FIELD_HEIGHT }, sf::Color(15, 150, 0, 200), snakesLength);
@@ -25,8 +26,8 @@ int main()
 	Snake snakeOther3({ 17 * FIELD_WIDTH, 9 * FIELD_HEIGHT }, sf::Color::Yellow, snakesLength);
 	Snake snakeOther4({ 1 * FIELD_WIDTH, 14 * FIELD_HEIGHT }, sf::Color(160, 160, 160, 200), snakesLength);
 
-	Snake *players[5] = { &snake, &snakeOther, &snakeOther2, &snakeOther3, &snakeOther4 };
-	Scoreboard scoreboard(players, 5, &clock);
+	Snake *players[4] = { &snakeOther, &snakeOther2, &snakeOther3, &snakeOther4 };
+	Scoreboard scoreboard(players, 4, &gameClock);
 
 	Fruit fruit(sf::Vector2i(32, 160));
 	
@@ -89,6 +90,7 @@ int main()
 					snakeOther2.m_fruits = 0;
 					snakeOther3.m_fruits = 0;
 					snakeOther4.m_fruits = 0;
+					gameClock.restart();
 					break;
 				case sf::Keyboard::Escape:
 					window.close();
@@ -99,10 +101,14 @@ int main()
 		}
 
 		// update everything here...
+		if (gameClock.getElapsedTime().asSeconds() > 180) {
+			sf::sleep(sf::seconds(5));
+			window.close();
+		}
 
 		// delay
 		if (clock.getElapsedTime() > sf::seconds(1 / SPEED)) {
-			snake.move(fruit);
+			//snake.move(fruit);
 			snakeOther.moveAutomatically(fruit);
 			snakeOther2.moveAutomatically(fruit);
 			snakeOther3.moveAutomatically(fruit);
@@ -122,7 +128,7 @@ int main()
 		window.draw(snakeOther3);
 		window.draw(snakeOther2);
 		window.draw(snakeOther);
-		window.draw(snake);
+		//window.draw(snake);
 		
 		window.draw(scoreboard);
 
