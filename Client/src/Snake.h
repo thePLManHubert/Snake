@@ -9,7 +9,7 @@ extern const int MAP_HEIGHT;
 
 class Snake : public sf::Drawable {
 public:
-	enum Direction { UP, DOWN, LEFT, RIGHT, STOP};
+	enum Direction { UP, DOWN, LEFT, RIGHT, STOP, FREEZE};
 
 	class Head : public Field {
 	private:
@@ -53,12 +53,15 @@ public:
 	Head m_head;
 	Body m_body;
 	Direction m_direction;
+	Direction m_prevDirection;
 	int m_fruits;
 	sf::Color m_color;
 	int m_limit;
+	bool m_collisionEnabled;
+	bool m_wait;
 
 public:
-	Snake(sf::Vector2i headPosition, sf::Color color, int limit = 1000);
+	Snake(sf::Vector2i headPosition, sf::Color color, int limit = 1000, bool collision = false);
 	~Snake();
 
 	void setDirection(Direction direction);
@@ -66,6 +69,9 @@ public:
 
 	void move(Fruit& fruit);
 	void moveAutomatically(Fruit& fruit);
+
+private:
+	bool selfCollision();
 
 private:
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;

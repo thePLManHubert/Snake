@@ -1,20 +1,59 @@
 #include "Snake.h"
 #include <iostream>
 
-Snake::Snake(sf::Vector2i headPosition, sf::Color color, int limit) 
-	: m_head(headPosition, color), m_color(color), m_direction(STOP), m_fruits(0), m_limit(limit) {}
+Snake::Snake(sf::Vector2i headPosition, sf::Color color, int limit, bool collision)
+	: m_head(headPosition, color),
+	m_color(color),
+	m_direction(STOP),
+	m_prevDirection(STOP),
+	m_fruits(0),
+	m_limit(limit),
+	m_collisionEnabled(collision),
+	m_wait(false)
+{
+}
 
 Snake::~Snake() {
 	m_body.deleteAllSegments();
 }
 
+bool Snake::selfCollision() {
+	if (!m_body.tail) return false;
+
+	Body::Segment * segment = m_body.tail;
+	for (segment; segment->next; segment = segment->next) {
+		if (m_head.getPosition() == segment->getPosition())
+			return true;
+	}
+	if (m_head.getPosition() == segment->getPosition())
+		return true;
+
+	return false;
+}
+
 void Snake::setDirection(Direction direction) {
-	if (m_direction == LEFT  && direction == RIGHT) return;
-	if (m_direction == RIGHT && direction == LEFT)	return;
-	if (m_direction == UP    && direction == DOWN)	return;
-	if (m_direction == DOWN  && direction == UP)	return;
+	if (direction == FREEZE) {
+		m_direction = direction;
+		return;
+	}
+	if (!m_wait) {
+		m_wait = true;
+		if (m_direction == LEFT && direction == RIGHT) return;
+		if (m_direction == RIGHT && direction == LEFT)	return;
+		if (m_direction == UP && direction == DOWN)	return;
+		if (m_direction == DOWN && direction == UP)	return;
 		
-	m_direction = direction;
+		if (m_direction == STOP) {
+			if (m_prevDirection == LEFT && direction == RIGHT) return;
+			if (m_prevDirection == RIGHT && direction == LEFT)	return;
+			if (m_prevDirection == UP && direction == DOWN)	return;
+			if (m_prevDirection == DOWN && direction == UP)	return;
+		}
+
+		if(m_direction != STOP)
+			m_prevDirection = m_direction;
+		m_direction = direction;
+	}
 }
 
 void Snake::setPosition(sf::Vector2i position) {
@@ -22,15 +61,30 @@ void Snake::setPosition(sf::Vector2i position) {
 }
 
 void Snake::move(Fruit& fruit) {
+	if (m_collisionEnabled) 
+		if (m_direction == FREEZE) return;
+
 	m_head.move(m_direction);
-	if (fruit.getPosition() == m_head.getPosition()) {
-		if (m_fruits < m_limit - 1) m_body.grow(m_head);
-		else m_body.follow(m_head);
-		fruit.setPosition(fruit.preparePosition(*this));
-		m_fruits++;
+
+	if (m_direction != STOP) {
+		if (fruit.getPosition() == m_head.getPosition()) {
+			if (m_fruits < m_limit - 1) m_body.grow(m_head);
+			else m_body.follow(m_head);
+			fruit.setPosition(fruit.preparePosition(*this));
+			m_fruits++;
+		}
+		else
+			m_body.follow(m_head);
 	}
-	else
-		m_body.follow(m_head);
+	if (m_collisionEnabled) {
+		if (selfCollision()) {
+			//m_head.setPosition(m_head.getPrevPos());
+			setDirection(FREEZE);
+			return;
+		}
+	}
+
+	m_wait = false;
 }
 
 void Snake::moveAutomatically(Fruit & fruit) {
@@ -95,6 +149,7 @@ void  Snake::Head::move(Direction direction) {
 			setPosition(0, m_position.y);
 		break;
 	case STOP:
+	case FREEZE:
 		break;
 	}
 }
