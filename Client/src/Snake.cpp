@@ -32,6 +32,7 @@ bool Snake::selfCollision() {
 }
 
 void Snake::setDirection(Direction direction) {
+	if (m_direction == FREEZE) return;
 	if (direction == FREEZE) {
 		m_direction = direction;
 		return;
@@ -78,7 +79,6 @@ void Snake::move(Fruit& fruit) {
 	}
 	if (m_collisionEnabled) {
 		if (selfCollision()) {
-			//m_head.setPosition(m_head.getPrevPos());
 			setDirection(FREEZE);
 			return;
 		}
@@ -88,18 +88,21 @@ void Snake::move(Fruit& fruit) {
 }
 
 void Snake::moveAutomatically(Fruit & fruit) {
-	if (rand() % (5 + 1)) {
+	int random = rand() % 20;
+	if (random >= 0 && random < 14) {
 		if (m_head.getPosition().x < fruit.getPosition().x) this->setDirection(RIGHT);
 		else if (m_head.getPosition().x > fruit.getPosition().x) this->setDirection(LEFT);
 		else if (m_head.getPosition().y < fruit.getPosition().y) this->setDirection(DOWN);
 		else if (m_head.getPosition().y > fruit.getPosition().y) this->setDirection(UP);
 	}
-	else {
+	else if (random >= 14 && random < 18){
 		if (m_head.getPosition().y < fruit.getPosition().y) this->setDirection(DOWN);
 		else if (m_head.getPosition().y > fruit.getPosition().y) this->setDirection(UP);
 		else if (m_head.getPosition().x < fruit.getPosition().x) this->setDirection(RIGHT);
 		else if (m_head.getPosition().x > fruit.getPosition().x) this->setDirection(LEFT);
 	}
+	else
+		setRandomDir();
 
 	this->move(fruit);
 }
@@ -114,6 +117,14 @@ void Snake::draw(sf::RenderTarget & target, sf::RenderStates states) const {
 		target.draw(*segment);
 	}
 	target.draw(m_head);
+}
+
+void Snake::setRandomDir(){
+	int random = rand() % 4;
+	if (random == 0) setDirection(UP);
+	if (random == 1) setDirection(DOWN);
+	if (random == 2) setDirection(LEFT);
+	if (random == 3) setDirection(RIGHT);
 }
 
 Snake::Head::Head(sf::Vector2i position, sf::Color color)
