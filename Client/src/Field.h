@@ -2,8 +2,11 @@
 #include "Globals.h"
 #include <SFML/Graphics.hpp>
 
-#define FIELD_WIDTH 32
-#define FIELD_HEIGHT 32
+extern const int FIELD_WIDTH;
+extern const int FIELD_HEIGHT;
+#define FW FIELD_WIDTH
+#define FH FIELD_HEIGHT
+
 
 class Field : public sf::Drawable {
 public:

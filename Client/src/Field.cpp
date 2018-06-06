@@ -52,13 +52,13 @@ void Field::setRotation(int rotation) {
 		m_sprite.setOrigin(0, 0);
 		break;
 	case 90:
-		m_sprite.setOrigin(0, FIELD_HEIGHT);
+		m_sprite.setOrigin(0, FIELD_HEIGHT*(32. / FIELD_HEIGHT));
 		break;
 	case 180:
-		m_sprite.setOrigin(FIELD_WIDTH, FIELD_HEIGHT);
+		m_sprite.setOrigin(FIELD_WIDTH * (32. / FIELD_WIDTH), FIELD_HEIGHT * (32. / FIELD_HEIGHT));
 		break;
 	case 270:
-		m_sprite.setOrigin(FIELD_WIDTH, 0);
+		m_sprite.setOrigin(FIELD_WIDTH * (32. / FIELD_WIDTH), 0);
 		break;
 	}
 	m_sprite.setRotation(m_rotation);
@@ -74,16 +74,20 @@ void Field::setTexture() {
 
 	switch(m_type) {
 	case TailBlock:
-		m_sprite.setTextureRect(sf::IntRect(0, 0, FIELD_WIDTH, FIELD_HEIGHT));
+		m_sprite.setTextureRect(sf::IntRect(0, 0, 32, 32));
+		m_sprite.setScale(sf::Vector2f(FIELD_WIDTH / 32., FIELD_HEIGHT / 32.));
 		break;
 	case BodyBlock:
-		m_sprite.setTextureRect(sf::IntRect(0, FIELD_HEIGHT, FIELD_WIDTH, FIELD_HEIGHT));
+		m_sprite.setTextureRect(sf::IntRect(0, 32, 32, 32));
+		m_sprite.setScale(sf::Vector2f(FIELD_WIDTH / 32., FIELD_HEIGHT / 32.));
 		break;
 	case FruitBlock:
-		m_sprite.setTextureRect(sf::IntRect(FIELD_WIDTH, 0, FIELD_WIDTH, FIELD_HEIGHT));
+		m_sprite.setTextureRect(sf::IntRect(32, 0, 32, 32));
+		m_sprite.setScale(sf::Vector2f(FIELD_WIDTH / 32., FIELD_HEIGHT / 32.));
 		break;
 	case HeadBlock:
-		m_sprite.setTextureRect(sf::IntRect(FIELD_WIDTH, FIELD_HEIGHT, FIELD_WIDTH, FIELD_HEIGHT));
+		m_sprite.setTextureRect(sf::IntRect(32, 32, 32, 32));
+		m_sprite.setScale(sf::Vector2f(FIELD_WIDTH / 32., FIELD_HEIGHT / 32.));
 		break;
 	}
 }

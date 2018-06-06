@@ -1,6 +1,7 @@
 #include "Snake.h"
 #include <iostream>
 
+
 Snake::Snake(sf::Vector2i headPosition, sf::Color color, int limit, bool collision)
 	: m_head(headPosition, color),
 	m_color(color),
@@ -44,7 +45,7 @@ void Snake::setDirection(Direction direction) {
 		if (m_direction == UP && direction == DOWN)	return;
 		if (m_direction == DOWN && direction == UP)	return;
 		
-		if (m_direction == STOP) {
+		if (m_direction == STOP && m_fruits) {
 			if (m_prevDirection == LEFT && direction == RIGHT) return;
 			if (m_prevDirection == RIGHT && direction == LEFT)	return;
 			if (m_prevDirection == UP && direction == DOWN)	return;
@@ -233,8 +234,8 @@ sf::Vector2i Fruit::preparePosition(const Snake& snake) {
 #ifdef DEBUG
 		i++;
 #endif
-		position.x = (rand() % 20) * 32;
-		position.y = (rand() % 15) * 32;
+		position.x = (rand() % 20) * FIELD_WIDTH;
+		position.y = (rand() % 15) * FIELD_HEIGHT;
 
 		if (snake.m_head.getPosition() == position) good = false;
 		auto segment = snake.m_body.tail;
