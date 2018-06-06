@@ -76,7 +76,7 @@ void Game::start() {
 	m_snakesPtr[0] = new Snake({ 5 * FIELD_WIDTH, 5 * FIELD_HEIGHT }, sf::Color(15, 150, 0, 200), 20, true);
 	m_snakesPtr[1] = new Snake({ 15 * FIELD_WIDTH, 5 * FIELD_HEIGHT }, sf::Color(240, 0, 0, 200), 20, true);
 	m_nPlayers = 2;
-	m_scoreboardPtr = new Scoreboard(m_snakesPtr, 1, &m_clock, m_playingLength);
+	m_scoreboardPtr = new Scoreboard(m_snakesPtr, m_nPlayers, &m_clock, m_playingLength);
 
 	m_fruitPtr = new Fruit(sf::Vector2i(32, 160));
 }

@@ -30,6 +30,9 @@ public:
 	void update();
 
 public:
+	void detectCollision();
+
+public:
 	float getSpeed() const;
 	Fruit& getFruit();
 
