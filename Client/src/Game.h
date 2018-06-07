@@ -27,7 +27,7 @@ public:
 	Game(int maxnPlayers = 4, int gameTime = 180, bool collision = true);
 	~Game();
 
-	void load();
+	void loadMenu();
 	void control(sf::Event& event, sf::RenderWindow& window);
 	void update();
 

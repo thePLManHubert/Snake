@@ -14,7 +14,8 @@ Game::Game(int maxnPlayers, int gameTime, bool collision)
 	m_fruitPtr(nullptr),
 	textureUpdated(false)
 {
-	load();
+	srand(time(NULL));
+	loadMenu();
 }
 
 Game::~Game() {
@@ -70,9 +71,8 @@ void Game::draw(sf::RenderTarget & target, sf::RenderStates states) const {
 	}
 }
 
-void Game::load() {
-	m_texture.loadFromFile("resources/SnakeMenu.png");
-	srand(time(NULL));
+void Game::loadMenu() {
+	if (!m_texture.loadFromFile("resources/SnakeMenu.png")) return;
 }
 
 void Game::startSingleplayer() {
@@ -175,6 +175,7 @@ void Game::setStage(Stage stage) {
 
 	switch (m_stage) {
 	case InMenu:
+		loadMenu();
 		closeGame();
 		break;
 	case InQueue:
