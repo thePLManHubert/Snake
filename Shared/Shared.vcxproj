@@ -134,17 +134,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\packets.cpp" />
-    <ClCompile Include="src\ServerClient.cpp" />
-    <ClCompile Include="src\utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Globals.h" />
-    <ClInclude Include="src\Player.h" />
     <ClInclude Include="src\packets.h" />
-    <ClInclude Include="src\ServerClient.h" />
-    <ClInclude Include="src\utilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
