@@ -5,9 +5,6 @@ class Snake;
 class Game;
 
 class Fruit : public Field {
-private:
-	unsigned int seed;
-
 public:
 	Fruit(sf::Vector2i position);
 

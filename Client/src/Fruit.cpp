@@ -2,11 +2,8 @@
 
 
 Fruit::Fruit(sf::Vector2i position)
-	: Field(position, FruitBlock), 
-	seed(time(NULL)) 
+	: Field(position, FruitBlock)
 {
-	setTexture();
-	srand(seed);
 }
 
 void Fruit::draw(sf::RenderTarget & target, sf::RenderStates states) const {
