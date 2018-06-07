@@ -15,10 +15,16 @@ int main()
 
 	// vertical sync
 	window.setVerticalSyncEnabled(true);
+	window.setTitle("Snake");
 
 	// create game
 	Game game = Game(4);
 	sf::Clock renderClock;
+
+#ifdef DEBUG
+	window.setVerticalSyncEnabled(false);
+	sf::Clock fpsClock;
+#endif
 
 	// run the program as long as the window is open
 	while (window.isOpen())
@@ -30,9 +36,16 @@ int main()
 			game.control(event, window);
 		}
 		
+#ifdef DEBUG
+		std::string fps = "Snake fps: " + std::to_string((int)(1 / fpsClock.restart().asSeconds()));
+#endif
+
 		if (renderClock.getElapsedTime().asSeconds() > 1. / game.getSpeed()) {
 			game.update();
 			renderClock.restart();
+#ifdef DEBUG
+			window.setTitle(fps);
+#endif
 		}
 
 		window.clear(sf::Color(240, 240, 240));
