@@ -6,7 +6,7 @@
 
 class Game : public sf::Drawable {
 public:
-	enum Stage { InMenu, InQueue, InGame };
+	enum Stage { InMenu, InQueue, InSingleplayer, InMultiplayer };
 
 private:
 	Stage m_stage;
@@ -19,23 +19,46 @@ private:
 	Fruit * m_fruitPtr;
 	Snake ** m_snakesPtr;
 	Scoreboard * m_scoreboardPtr;
-	bool ** m_collisionMatrix;
+	sf::Texture m_texture;
+	sf::Sprite m_sprite;
+	bool textureUpdated;
 	
-
 public:
 	Game(int maxnPlayers = 4, int gameTime = 180, bool collision = true);
 	~Game();
 
+	void load();
 	void control(sf::Event& event, sf::RenderWindow& window);
-	void start();
-	void reset();
-	void resetPlayerStatus();
 	void update();
+
+	// Singleplayer game
+	void startSingleplayer();
+	void resetSingleplayer();
+	void resetPlayerStatus();
+
+	void closeGame();
+
+private:
+	void controlMenu(sf::Event event, sf::RenderWindow& window);
+	void controlQueue(sf::Event event, sf::RenderWindow& window);
+	void controlSingleplayer(sf::Event event, sf::RenderWindow& window);
+	void controlMultiplayer(sf::Event event, sf::RenderWindow& window);
+
+	void updateMenu();
+	void updateQueue();
+	void updateSingleplayer();
+	void updateMultiplayer();
+
+	void drawMenu(sf::RenderTarget & target, sf::RenderStates states) const;
+	void drawQueue(sf::RenderTarget & target, sf::RenderStates states) const;
+	void drawGame(sf::RenderTarget & target, sf::RenderStates states) const;
 
 public:
 	void detectCollision();
 
 public:
+	void setStage(Stage stage);
+
 	int getnPlayers() const;
 	float getSpeed() const;
 	Snake** getSnakes() const;

@@ -12,83 +12,89 @@ Game::Game(int maxnPlayers, int gameTime, bool collision)
 	m_snakesPtr(nullptr),
 	m_scoreboardPtr(nullptr),
 	m_fruitPtr(nullptr),
-	m_collisionMatrix(nullptr)
+	textureUpdated(false)
 {
-	srand(time(NULL));
-	start();
+	load();
 }
 
 Game::~Game() {
-	Snake ** player = m_snakesPtr;
-	for (int i = 0; i < m_nPlayers; i++)
-		delete player[i];
-	delete[] m_snakesPtr;
+	closeGame();
 }
 
 void Game::control(sf::Event & event, sf::RenderWindow& window) {
-	switch (event.type)
-	{
-	case sf::Event::Closed:
-		window.close();
+	switch (m_stage) {
+	case InMenu:
+		controlMenu(event, window);
 		break;
-
-	case sf::Event::KeyPressed:
-
-		switch (event.key.code)
-		{
-		case sf::Keyboard::Up:
-			(*m_snakesPtr)->setDirection(Snake::Direction::UP);
-			break;
-		case sf::Keyboard::Down:
-			(*m_snakesPtr)->setDirection(Snake::Direction::DOWN);
-			break;
-		case sf::Keyboard::Left:
-			(*m_snakesPtr)->setDirection(Snake::Direction::LEFT);
-			break;
-		case sf::Keyboard::Right:
-			(*m_snakesPtr)->setDirection(Snake::Direction::RIGHT);
-			break;
-		case sf::Keyboard::Space:
-			(*m_snakesPtr)->setDirection(Snake::Direction::STOP);
-			break;
-		case sf::Keyboard::Subtract:
-			if (m_speed > 2) m_speed -= 0.5;
-			break;
-		case sf::Keyboard::Add:
-			if (m_speed < 60) m_speed += 0.5;
-			break;
-		case sf::Keyboard::R:
-			reset();
-			break;
-		case sf::Keyboard::S:
-			resetPlayerStatus();
-			break;
-		case sf::Keyboard::Escape:
-			window.close();
-			break;
-		}
+	case InQueue:
+		controlQueue(event, window);
+		break;
+	case InSingleplayer:
+		controlSingleplayer(event, window);
+		break;
+	case InMultiplayer:
+		controlMultiplayer(event, window);
 		break;
 	}
 }
 
-void Game::start() {
+void Game::update() {
+	switch (m_stage) {
+	case InMenu:
+		updateMenu();
+		break;
+	case InQueue:
+		updateQueue();
+		break;
+	case InSingleplayer:
+		updateSingleplayer();
+		break;
+	case InMultiplayer:
+		updateMultiplayer();
+		break;
+	}
+}
+
+void Game::draw(sf::RenderTarget & target, sf::RenderStates states) const {
+	switch (m_stage) {
+	case InMenu:
+		drawMenu(target, states);
+		break;
+	case InQueue:
+		drawQueue(target, states);
+		break;
+	case InSingleplayer:
+	case InMultiplayer:
+		drawGame(target, states);
+		break;
+	}
+}
+
+void Game::load() {
+	m_texture.loadFromFile("resources/SnakeMenu.png");
+	srand(time(NULL));
+}
+
+void Game::startSingleplayer() {
 	m_snakesPtr = new Snake*[MAX_PLAYERS];
 
 	m_snakesPtr[0] = new Snake({ 4 * FIELD_WIDTH, 5 * FIELD_HEIGHT }, sf::Color(15, 150, 0, 200), 20, false);
-	m_snakesPtr[1] = new Snake({ MAP_WIDTH - 5* FIELD_WIDTH, 5 * FIELD_HEIGHT }, sf::Color(240, 0, 0, 200), 20, false);
+	m_snakesPtr[1] = new Snake({ MAP_WIDTH - 5 * FIELD_WIDTH, 5 * FIELD_HEIGHT }, sf::Color(240, 0, 0, 200), 20, false);
+
 	m_nPlayers = 2;
 	m_scoreboardPtr = new Scoreboard(m_snakesPtr, m_nPlayers, &m_clock, m_playingLength);
 
 	m_fruitPtr = new Fruit(m_fruitPtr->preparePosition(*this));
+	m_clock.restart();
 }
 
-void Game::reset() {
-	if(m_snakesPtr)
-	for (int i = 0; i < m_nPlayers; i++) {
-		m_snakesPtr[i]->m_body.deleteAllSegments();
-		m_snakesPtr[i]->m_fruits = 0;
-		m_snakesPtr[i]->m_direction = Snake::Direction::STOP;
-	}
+void Game::resetSingleplayer() {
+	if (m_snakesPtr)
+		for (int i = 0; i < m_nPlayers; i++) {
+			m_snakesPtr[i]->m_body.deleteAllSegments();
+			m_snakesPtr[i]->m_fruits = 0;
+			m_snakesPtr[i]->m_direction = Snake::Direction::STOP;
+		}
 	m_scoreboardPtr->setTime(m_playingLength);
 	m_clock.restart();
 }
@@ -99,25 +105,27 @@ void Game::resetPlayerStatus() {
 	m_snakesPtr[0]->m_direction = Snake::Direction::STOP;
 }
 
-void Game::update() {
-	if (!m_snakesPtr) return;
-
-	bool hitFruit = false;
-	hitFruit = m_snakesPtr[0]->move(*m_fruitPtr);
-
-	for (int i = 1; i < m_nPlayers; i++) {
-		hitFruit = m_snakesPtr[i]->move(*m_fruitPtr) || hitFruit;
+void Game::closeGame() {
+	if (m_snakesPtr) {
+		Snake ** player = m_snakesPtr;
+		for (int i = 0; i < m_nPlayers; i++)
+			delete player[i];
+		delete[] m_snakesPtr;
+		m_snakesPtr = nullptr;
 	}
-	if (hitFruit)
-		m_fruitPtr->setPosition(m_fruitPtr->preparePosition(*this));
-	if(m_collisionEnabled)
-		detectCollision();
-
-	m_scoreboardPtr->update();
+	if (m_fruitPtr) {
+		delete m_fruitPtr;
+		m_fruitPtr = nullptr;
+	}
+	if (m_scoreboardPtr) {
+		delete m_scoreboardPtr;
+		m_scoreboardPtr = nullptr;
+	}
 }
 
 void Game::detectCollision() {
-	if (!m_snakesPtr && m_clock.getElapsedTime().asSeconds() < 1) return;
+	if (!m_snakesPtr || m_clock.getElapsedTime().asSeconds() < 1) return;
+
 	for (int j = 0; j < m_nPlayers; j++) {
 		for (int i = 0; i < m_nPlayers; i++) {
 			if (j == i) continue;
@@ -125,32 +133,6 @@ void Game::detectCollision() {
 				m_snakesPtr[j]->setDirection(Snake::Direction::FREEZE);
 		}
 	}
-}
-
-int Game::getnPlayers() const {
-	return m_nPlayers;
-}
-
-float Game::getSpeed() const {
-	return m_speed;
-}
-
-Snake ** Game::getSnakes() const {
-	return m_snakesPtr;
-}
-
-Fruit & Game::getFruit() {
-	return *m_fruitPtr;
-}
-
-void Game::draw(sf::RenderTarget & target, sf::RenderStates states) const {
-	target.draw(*m_fruitPtr);
-	if (!m_snakesPtr) return;
-
-	for (int i = m_nPlayers - 1; i > -1; i--) {
-		target.draw(*m_snakesPtr[i]);
-	}
-	target.draw(*m_scoreboardPtr);
 }
 
 sf::Vector2i Fruit::preparePosition(Game & game) {
@@ -186,4 +168,38 @@ sf::Vector2i Fruit::preparePosition(Game & game) {
 	std::cout << "Generowano " << i << " razy." << std::endl;
 #endif
 	return position;
+}
+
+void Game::setStage(Stage stage) {
+	m_stage = stage;
+
+	switch (m_stage) {
+	case InMenu:
+		closeGame();
+		break;
+	case InQueue:
+		break;
+	case InSingleplayer:
+		startSingleplayer();
+		break;
+	case InMultiplayer:
+		break;
+	}
+}
+
+// gettery
+int Game::getnPlayers() const {
+	return m_nPlayers;
+}
+
+float Game::getSpeed() const {
+	return m_speed;
+}
+
+Snake ** Game::getSnakes() const {
+	return m_snakesPtr;
+}
+
+Fruit & Game::getFruit() {
+	return *m_fruitPtr;
 }
