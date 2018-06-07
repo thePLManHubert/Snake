@@ -2,27 +2,43 @@
 
 
 Field::Field(sf::Vector2i position, Type type)
-	: m_position(position), m_rotation(0), m_color(sf::Color::White), m_type(type) {
+	: m_position(position), 
+	m_rotation(0), 
+	m_color(sf::Color::White), 
+	m_type(type) 
+{
 	setTexture();
 	m_sprite.setPosition((sf::Vector2f)m_position);
 }
 
 Field::Field(sf::Vector2i position, sf::Color color, Type type) 
-	: m_position(position), m_rotation(0), m_color(color), m_type(type) {
+	: m_position(position), 
+	m_rotation(0), 
+	m_color(color), 
+	m_type(type) 
+{
 	setTexture();
 	m_sprite.setColor(m_color);
 	m_sprite.setPosition((sf::Vector2f)m_position);
 }
 
 Field::Field(sf::Vector2i position, int rotation, Type type)
-	: m_position(position), m_rotation(rotation), m_color(sf::Color::White), m_type(type) {
+	: m_position(position), 
+	m_rotation(rotation), 
+	m_color(sf::Color::White), 
+	m_type(type) 
+{
 	setTexture();
 	m_sprite.setPosition((sf::Vector2f)m_position);
 	setRotation(m_rotation);
 }
 
 Field::Field(sf::Vector2i position, int rotation, sf::Color color, Type type)
-	: m_position(position), m_rotation(rotation), m_color(color), m_type(type) {
+	: m_position(position), 
+	m_rotation(rotation), 
+	m_color(color), 
+	m_type(type) 
+{
 	setTexture();
 	m_sprite.setColor(m_color);
 	m_sprite.setPosition((sf::Vector2f)m_position);
