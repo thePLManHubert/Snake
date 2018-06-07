@@ -7,7 +7,9 @@ Scoreboard::Scoreboard(Snake ** snakes, int nPlayers, sf::Clock * clock, int sta
 	m_clockPtr(clock),
 	m_prevTime(0),
 	m_height(height), 
-	m_position(sf::Vector2i(0, MAP_HEIGHT)) 
+	m_position(sf::Vector2i(0, MAP_HEIGHT)),
+	m_score(nullptr),
+	m_timeText(nullptr)
 {
 	m_min = (startTime) / 60;
 	m_sec = (startTime) % 60;
