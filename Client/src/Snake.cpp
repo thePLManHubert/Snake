@@ -32,6 +32,23 @@ bool Snake::selfCollision() {
 	return false;
 }
 
+bool Snake::comparePosition(Field * segment) {
+	if (m_head.getPosition() == segment->getPosition())
+		return true;
+
+	if (!m_body.tail) return false;
+
+	Body::Segment* temp = m_body.tail;
+	for (temp; temp->next; temp = temp->next) {
+		if (temp->getPosition() == segment->getPosition())
+			return true;
+	}
+	if (temp->getPosition() == segment->getPosition())
+		return true;
+
+	return false;
+}
+
 void Snake::setDirection(Direction direction) {
 	if (m_direction == FREEZE) return;
 	if (direction == FREEZE) {
@@ -40,11 +57,12 @@ void Snake::setDirection(Direction direction) {
 	}
 	if (!m_wait) {
 		m_wait = true;
-		if (m_direction == LEFT && direction == RIGHT) return;
-		if (m_direction == RIGHT && direction == LEFT)	return;
-		if (m_direction == UP && direction == DOWN)	return;
-		if (m_direction == DOWN && direction == UP)	return;
-		
+		if (m_fruits) {
+			if (m_direction == LEFT && direction == RIGHT) return;
+			if (m_direction == RIGHT && direction == LEFT)	return;
+			if (m_direction == UP && direction == DOWN)	return;
+			if (m_direction == DOWN && direction == UP)	return;
+		}
 		if (m_direction == STOP && m_fruits) {
 			if (m_prevDirection == LEFT && direction == RIGHT) return;
 			if (m_prevDirection == RIGHT && direction == LEFT)	return;
@@ -62,7 +80,28 @@ void Snake::setPosition(sf::Vector2i position) {
 	if(!m_fruits) m_head.setPosition(position);
 }
 
-void Snake::move(Fruit& fruit) {
+bool Snake::move(Fruit& fruit) {
+	if (m_direction == FREEZE) return false;
+
+	bool fruitHit = false;
+	m_head.move(m_direction);
+
+	if (m_direction != STOP) {
+		if (fruit.getPosition() == m_head.getPosition()) {
+			if (m_fruits < m_limit - 1) m_body.grow(m_head);
+			else m_body.follow(m_head);
+			m_fruits++;
+			fruitHit = true;
+		}
+		else
+			m_body.follow(m_head);
+	}
+
+	m_wait = false;
+	return fruitHit;
+}
+
+void Snake::moveSingleplayer(Fruit& fruit) {
 	if (m_collisionEnabled) 
 		if (m_direction == FREEZE) return;
 
@@ -88,7 +127,7 @@ void Snake::move(Fruit& fruit) {
 	m_wait = false;
 }
 
-void Snake::moveAutomatically(Fruit & fruit) {
+bool Snake::moveAutomatically(Fruit & fruit) {
 	int random = rand() % 20;
 	if (random >= 0 && random < 14) {
 		if (m_head.getPosition().x < fruit.getPosition().x) this->setDirection(RIGHT);
@@ -105,7 +144,7 @@ void Snake::moveAutomatically(Fruit & fruit) {
 	else
 		setRandomDir();
 
-	this->move(fruit);
+	return this->move(fruit);
 }
 
 void Snake::draw(sf::RenderTarget & target, sf::RenderStates states) const {
@@ -129,7 +168,10 @@ void Snake::setRandomDir(){
 }
 
 Snake::Head::Head(sf::Vector2i position, sf::Color color)
-	: Field(position, color, HeadBlock), m_prev_position(0, 0) {}
+	: Field(position, color, HeadBlock), 
+	m_prev_position(0, 0) 
+{
+}
 
 void  Snake::Head::move(Direction direction) {
 	if (direction != STOP)

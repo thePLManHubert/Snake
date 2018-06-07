@@ -14,18 +14,20 @@ private:
 	const int MAX_PLAYERS;
 	int m_nPlayers;
 	float m_speed;
+	bool m_collisionEnabled;
 	sf::Clock m_clock;
 	Fruit * m_fruitPtr;
 	Snake ** m_snakesPtr;
 	Scoreboard * m_scoreboardPtr;
+	bool ** m_collisionMatrix;
 	
 
 public:
-	Game(int maxnPlayers = 4);
+	Game(int maxnPlayers = 4, int gameTime = 180, bool collision = true);
 	~Game();
 
-	void start();
 	void control(sf::Event& event, sf::RenderWindow& window);
+	void start();
 	void reset();
 	void update();
 
@@ -33,7 +35,9 @@ public:
 	void detectCollision();
 
 public:
+	int getnPlayers() const;
 	float getSpeed() const;
+	Snake** getSnakes() const;
 	Fruit& getFruit();
 
 private:

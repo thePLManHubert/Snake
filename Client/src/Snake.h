@@ -67,8 +67,11 @@ public:
 	void setDirection(Direction direction);
 	void setPosition(sf::Vector2i position);
 
-	void move(Fruit& fruit);
-	void moveAutomatically(Fruit& fruit);
+	bool move(Fruit& fruit);
+	void moveSingleplayer(Fruit& fruit);
+	bool moveAutomatically(Fruit& fruit);
+
+	bool comparePosition(Field* segment);
 
 private:
 	bool selfCollision();
