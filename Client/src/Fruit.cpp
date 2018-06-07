@@ -2,7 +2,9 @@
 
 
 Fruit::Fruit(sf::Vector2i position)
-	: Field(position, FruitBlock), seed(time(NULL)) {
+	: Field(position, FruitBlock), 
+	seed(time(NULL)) 
+{
 	setTexture();
 	srand(seed);
 }
