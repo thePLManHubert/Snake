@@ -14,6 +14,7 @@ Game::Game(int maxnPlayers, int gameTime, bool collision)
 	m_fruitPtr(nullptr),
 	m_collisionMatrix(nullptr)
 {
+	srand(time(NULL));
 	start();
 }
 
@@ -59,6 +60,9 @@ void Game::control(sf::Event & event, sf::RenderWindow& window) {
 		case sf::Keyboard::R:
 			reset();
 			break;
+		case sf::Keyboard::S:
+			resetPlayerStatus();
+			break;
 		case sf::Keyboard::Escape:
 			window.close();
 			break;
@@ -70,12 +74,12 @@ void Game::control(sf::Event & event, sf::RenderWindow& window) {
 void Game::start() {
 	m_snakesPtr = new Snake*[MAX_PLAYERS];
 
-	m_snakesPtr[0] = new Snake({ 5 * FIELD_WIDTH, 5 * FIELD_HEIGHT }, sf::Color(15, 150, 0, 200), 20, false);
-	m_snakesPtr[1] = new Snake({ 15 * FIELD_WIDTH, 5 * FIELD_HEIGHT }, sf::Color(240, 0, 0, 200), 20, false);
+	m_snakesPtr[0] = new Snake({ 4 * FIELD_WIDTH, 5 * FIELD_HEIGHT }, sf::Color(15, 150, 0, 200), 20, false);
+	m_snakesPtr[1] = new Snake({ MAP_WIDTH - 5* FIELD_WIDTH, 5 * FIELD_HEIGHT }, sf::Color(240, 0, 0, 200), 20, false);
 	m_nPlayers = 2;
 	m_scoreboardPtr = new Scoreboard(m_snakesPtr, m_nPlayers, &m_clock, m_playingLength);
 
-	m_fruitPtr = new Fruit(sf::Vector2i(32, 160));
+	m_fruitPtr = new Fruit(m_fruitPtr->preparePosition(*this));
 }
 
 void Game::reset() {
@@ -89,6 +93,12 @@ void Game::reset() {
 	m_clock.restart();
 }
 
+void Game::resetPlayerStatus() {
+	m_snakesPtr[0]->m_body.deleteAllSegments();
+	m_snakesPtr[0]->m_fruits = 0;
+	m_snakesPtr[0]->m_direction = Snake::Direction::STOP;
+}
+
 void Game::update() {
 	if (!m_snakesPtr) return;
 
@@ -96,7 +106,7 @@ void Game::update() {
 	hitFruit = m_snakesPtr[0]->move(*m_fruitPtr);
 
 	for (int i = 1; i < m_nPlayers; i++) {
-		hitFruit = m_snakesPtr[i]->moveAutomatically(*m_fruitPtr) || hitFruit;
+		hitFruit = m_snakesPtr[i]->move(*m_fruitPtr) || hitFruit;
 	}
 	if (hitFruit)
 		m_fruitPtr->setPosition(m_fruitPtr->preparePosition(*this));

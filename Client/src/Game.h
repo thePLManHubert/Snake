@@ -29,6 +29,7 @@ public:
 	void control(sf::Event& event, sf::RenderWindow& window);
 	void start();
 	void reset();
+	void resetPlayerStatus();
 	void update();
 
 public:
