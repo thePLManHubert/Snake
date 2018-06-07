@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="src\Client.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Snake.cpp" />
     <ClCompile Include="src\Field.cpp" />
@@ -9,14 +8,18 @@
     <ClCompile Include="src\TileMap.cpp" />
     <ClCompile Include="src\Scoreboard.cpp" />
     <ClCompile Include="src\Game.cpp" />
+    <ClCompile Include="src\Client.cpp" />
+    <ClCompile Include="src\Controls.cpp" />
+    <ClCompile Include="src\Updates.cpp" />
+    <ClCompile Include="src\Drawings.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Client.h" />
     <ClInclude Include="src\Snake.h" />
     <ClInclude Include="src\Field.h" />
     <ClInclude Include="src\Fruit.h" />
     <ClInclude Include="src\TileMap.h" />
     <ClInclude Include="src\Scoreboard.h" />
     <ClInclude Include="src\Game.h" />
+    <ClInclude Include="src\Client.h" />
   </ItemGroup>
 </Project>
