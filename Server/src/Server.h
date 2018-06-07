@@ -1,6 +1,5 @@
 #pragma once
 #include "packets.h"
-#include "ServerClient.h"
 #include <SFML/Network.hpp>
 #include <thread>
 
