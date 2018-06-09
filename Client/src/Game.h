@@ -41,6 +41,7 @@ public:
 	void resetPlayerStatus();
 
 	void closeGame();
+	void deleteClient();
 
 private:
 	void controlMenu(sf::Event event, sf::RenderWindow& window);

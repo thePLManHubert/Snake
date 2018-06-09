@@ -21,10 +21,8 @@ Game::Game(int maxnPlayers, int gameTime, bool collision)
 
 Game::~Game() {
 	closeGame();
-	if (m_clientPtr) {
-		delete m_clientPtr;
-		m_clientPtr = nullptr;
-	}
+	if (m_clientPtr) 
+		deleteClient();
 }
 
 void Game::control(sf::Event & event, sf::RenderWindow& window) {
@@ -126,6 +124,11 @@ void Game::closeGame() {
 		delete m_scoreboardPtr;
 		m_scoreboardPtr = nullptr;
 	}
+}
+
+void Game::deleteClient() {
+	delete m_clientPtr;
+	m_clientPtr = nullptr;
 }
 
 void Game::detectCollision() {

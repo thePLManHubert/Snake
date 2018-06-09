@@ -19,8 +19,7 @@ void Game::controlMenu(sf::Event event, sf::RenderWindow& window) {
 			m_clientPtr = new Client(this);
 			if (!m_clientPtr->isConnected()) {
 				setStage(InMenu);
-				delete m_clientPtr;
-				m_clientPtr = nullptr;
+				deleteClient();
 			}
 			break;
 		case sf::Keyboard::Escape:
@@ -38,25 +37,20 @@ void Game::controlQueue(sf::Event event, sf::RenderWindow& window) {
 	{
 	case sf::Event::Closed:
 		window.close();
-		if (m_clientPtr) {
-			delete m_clientPtr;
-			m_clientPtr = nullptr;
-		}
+		if (m_clientPtr)
+			deleteClient();
 		break;
 
 	case sf::Event::KeyPressed:
-		if (event.key.code == sf::Keyboard::Escape) {
-			setStage(InMenu);
-			if (m_clientPtr) {
-				delete m_clientPtr;
-				m_clientPtr = nullptr;
-			}
-		}
-
 		switch (event.key.code)
 		{
 		case sf::Keyboard::Up:
 			// do sth...
+			break;
+		case sf::Keyboard::Escape:
+			setStage(InMenu);
+			if (m_clientPtr)
+				deleteClient();
 			break;
 		}
 		break;
@@ -121,15 +115,16 @@ void Game::controlMultiplayer(sf::Event event, sf::RenderWindow& window) {
 		break;
 
 	case sf::Event::KeyPressed:
-		if (event.key.code == sf::Keyboard::Escape)
-			setStage(InQueue);
-
 		switch (event.key.code)
 		{
 		case sf::Keyboard::Up:
 			// do sth...
 			break;
+		case sf::Keyboard::Escape:
+			setStage(InQueue);
+			break;
 		}
 		break;
 	}
 }
+
