@@ -5,7 +5,7 @@ namespace Datagram {
 
 	typedef unsigned short FunctionID;
 	typedef unsigned short ServerPort;
-	typedef short PlayerID;
+	typedef int PlayerID;
 
 	enum TypeOfPacket { RequestPacket, ReplyPacket, DataPacket };
 
@@ -14,27 +14,23 @@ namespace Datagram {
 
 		TypeOfPacket type = RequestPacket;
 		PlayerID playerID = -1;
-
+		
 	};
 
 	struct Reply {
 
 		TypeOfPacket type = ReplyPacket;
 		PlayerID playerID;
-
+#ifdef DEBUG
+		char testInfo[50] = "Testowa odpowiedz z serwera";
+#endif
 	};
 
 	struct Data {
 
 		TypeOfPacket type = DataPacket;
 		PlayerID playerID;
-
-	};
-
-	struct State {
-
-		TypeOfPacket type = DataPacket;
-		PlayerID playerID;
+		char data[80];
 
 	};
 
