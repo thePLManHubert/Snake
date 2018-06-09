@@ -73,8 +73,9 @@ bool Client::start() {
 }
 
 void Client::disconnect() {
+	if(isConnected())
+		m_thread.join();
 	m_currentStage = Disconnected;
-	m_thread.join();
 }
 
 void Client::send(const void * data, size_t size, const sf::IpAddress address, unsigned short port) {
