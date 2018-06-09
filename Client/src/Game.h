@@ -2,6 +2,7 @@
 #include "TileMap.h"
 #include "Snake.h"
 #include "Scoreboard.h"
+#include "Client.h"
 
 
 class Game : public sf::Drawable {
@@ -21,8 +22,11 @@ private:
 	Scoreboard * m_scoreboardPtr;
 	sf::Texture m_texture;
 	sf::Sprite m_sprite;
-	bool textureUpdated;
-	
+	bool m_textureUpdated;
+
+public:
+	Client * m_clientPtr;
+
 public:
 	Game(int maxnPlayers = 4, int gameTime = 180, bool collision = true);
 	~Game();

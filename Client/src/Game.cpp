@@ -12,7 +12,8 @@ Game::Game(int maxnPlayers, int gameTime, bool collision)
 	m_snakesPtr(nullptr),
 	m_scoreboardPtr(nullptr),
 	m_fruitPtr(nullptr),
-	textureUpdated(false)
+	m_textureUpdated(false),
+	m_clientPtr(nullptr)
 {
 	srand(time(NULL));
 	loadMenu();
@@ -20,6 +21,10 @@ Game::Game(int maxnPlayers, int gameTime, bool collision)
 
 Game::~Game() {
 	closeGame();
+	if (m_clientPtr) {
+		delete m_clientPtr;
+		m_clientPtr = nullptr;
+	}
 }
 
 void Game::control(sf::Event & event, sf::RenderWindow& window) {

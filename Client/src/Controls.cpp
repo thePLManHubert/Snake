@@ -16,6 +16,12 @@ void Game::controlMenu(sf::Event event, sf::RenderWindow& window) {
 			break;
 		case sf::Keyboard::M:
 			setStage(InQueue);
+			m_clientPtr = new Client(this);
+			if (!m_clientPtr->isConnected()) {
+				setStage(InMenu);
+				delete m_clientPtr;
+				m_clientPtr = nullptr;
+			}
 			break;
 		case sf::Keyboard::Escape:
 			window.close();
@@ -32,11 +38,20 @@ void Game::controlQueue(sf::Event event, sf::RenderWindow& window) {
 	{
 	case sf::Event::Closed:
 		window.close();
+		if (m_clientPtr) {
+			delete m_clientPtr;
+			m_clientPtr = nullptr;
+		}
 		break;
 
 	case sf::Event::KeyPressed:
-		if (event.key.code == sf::Keyboard::Escape)
+		if (event.key.code == sf::Keyboard::Escape) {
 			setStage(InMenu);
+			if (m_clientPtr) {
+				delete m_clientPtr;
+				m_clientPtr = nullptr;
+			}
+		}
 
 		switch (event.key.code)
 		{
