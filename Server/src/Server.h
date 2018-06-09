@@ -5,21 +5,27 @@
 
 class Server {
 	static const int MAX_DATA_SIZE = 100;
+	static const int MAX_PLAYER_NUMBER = 10;
 
 private:
-	int port;
-	std::thread listenThread;
-	volatile bool listening;
-	sf::UdpSocket socket;
-	size_t receivedSize;
-	char receivedData[MAX_DATA_SIZE];
-	sf::IpAddress senderAddress;
-	unsigned short senderPort;
-	Datagram::State state;
+	unsigned short m_port;
+	std::thread m_listenThread;
+	volatile bool m_listening;
+	sf::UdpSocket m_socket;
+	size_t m_receivedSize;
+	char m_receivedData[MAX_DATA_SIZE];
+	sf::IpAddress m_senderAddress;
+	unsigned short m_senderPort;
+	int m_nPlayers;
 
 
 public:
-	Server(int port) : port(port), listening(false) {}
+	Server(unsigned short port) : 
+		m_port(port), 
+		m_listening(false),
+		m_nPlayers(0)
+	{
+	}
 
 	void start();
 	void shutdown();
@@ -30,6 +36,5 @@ private:
 	void process(void* packet);
 	void process(Datagram::Request & request);
 	void process(Datagram::Data & data);
-	void broadcast(Datagram::State & state);
 
 };
