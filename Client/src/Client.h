@@ -14,34 +14,37 @@ private:
 	Stage m_currentStage = Disconnected;
 	sf::UdpSocket m_socket;
 	sf::IpAddress m_serverIP;
+	sf::IpAddress m_processIP;
 	unsigned short m_port;
 	unsigned short m_serverPort;
+	unsigned short m_processPort;
 	int m_id;
 	char m_data[100];
 	std::size_t m_dataSize;
 	std::thread m_thread;
+	sf::Mutex mutex;
 	Game * game;
 
 public:
 	Client(Game * game);
-	Client(Game * game, sf::IpAddress serverIP, int serverPort = 5000, int socketPort = sf::Socket::AnyPort);
+	Client(Game * game, sf::IpAddress serverIP, unsigned short serverPort = 5000, unsigned short socketPort = sf::Socket::AnyPort);
 	~Client();
 
 public:
 	// zwraca informacjê o tym czy po³¹czenie siê powiod³o
 	bool start();
 	void disconnect();
+	void send(const void * data, size_t size);
 
 private:
-	void send(const void * data, size_t size, const sf::IpAddress address, unsigned short port);
 	void listen();
 	void process(void * packet);
 
 private:
-	void process(Datagram::Data & data);
-	void * preparePacket();
+	void process(Datagram::Data * data);
 
 public: // getters
-	bool isConnected();
-	Stage getCurrentStage();
+	bool isConnected() const;
+	Stage getCurrentStage() const;
+	int getID() const;
 };

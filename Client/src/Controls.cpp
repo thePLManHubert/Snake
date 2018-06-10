@@ -33,6 +33,14 @@ void Game::controlMenu(sf::Event event, sf::RenderWindow& window) {
 /*------------------------------------------------------------------------------------------*/
 
 void Game::controlQueue(sf::Event event, sf::RenderWindow& window) {
+#ifdef DEBUG
+	Datagram::Data data = {
+		Datagram::DataPacket,
+		m_clientPtr->getID(),
+		"Message to Everyone."
+	};
+#endif
+
 	switch (event.type)
 	{
 	case sf::Event::Closed:
@@ -45,7 +53,9 @@ void Game::controlQueue(sf::Event event, sf::RenderWindow& window) {
 		switch (event.key.code)
 		{
 		case sf::Keyboard::Up:
-			// do sth...
+#ifdef DEBUG
+			m_clientPtr->send(&data, sizeof(Datagram::Data));
+#endif
 			break;
 		case sf::Keyboard::Escape:
 			setStage(InMenu);
