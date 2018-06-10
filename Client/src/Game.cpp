@@ -51,7 +51,10 @@ void Game::update() {
 		updateQueue();
 		break;
 	case InSingleplayer:
-		updateSingleplayer();
+		if (m_renderClock.getElapsedTime().asSeconds() > 1 / m_speed) {
+			updateSingleplayer();
+			m_renderClock.restart();
+		}
 		break;
 	case InMultiplayer:
 		updateMultiplayer();

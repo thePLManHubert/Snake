@@ -17,6 +17,7 @@ private:
 	float m_speed;
 	bool m_collisionEnabled;
 	sf::Clock m_clock;
+	sf::Clock m_renderClock;
 	Fruit * m_fruitPtr;
 	Snake ** m_snakesPtr;
 	Scoreboard * m_scoreboardPtr;
