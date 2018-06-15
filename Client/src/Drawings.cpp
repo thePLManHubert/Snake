@@ -8,7 +8,7 @@ void Game::drawMenu(sf::RenderTarget & target, sf::RenderStates states) const {
 /*------------------------------------------------------------------------------------------*/
 
 void Game::drawQueue(sf::RenderTarget & target, sf::RenderStates states) const {
-
+	target.draw(m_sprite);
 }
 
 /*------------------------------------------------------------------------------------------*/
