@@ -59,9 +59,11 @@ public:
 	int m_limit;
 	bool m_collisionEnabled;
 	bool m_wait;
+	int m_id;
 
 public:
 	Snake(sf::Vector2i headPosition, sf::Color color, int limit = 1000, bool collision = false);
+	Snake(sf::Vector2i headPosition, int id, sf::Color color, int limit = 1000, bool collision = false);
 	~Snake();
 
 	void setDirection(Direction direction);

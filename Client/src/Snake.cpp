@@ -14,10 +14,26 @@ Snake::Snake(sf::Vector2i headPosition, sf::Color color, int limit, bool collisi
 {
 }
 
+Snake::Snake(sf::Vector2i headPosition, int id, sf::Color color, int limit, bool collision)
+	: m_head(headPosition, color),
+	m_color(color),
+	m_direction(STOP),
+	m_prevDirection(STOP),
+	m_fruits(0),
+	m_limit(limit),
+	m_collisionEnabled(collision),
+	m_wait(false),
+	m_id(id)
+{
+}
+
 Snake::~Snake() {
 	m_body.deleteAllSegments();
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Wykrywa kolizjê wê¿a z samym sob¹.
+/*------------------------------------------------------------------------------------*/
 bool Snake::selfCollision() {
 	if (!m_body.tail) return false;
 
@@ -32,6 +48,11 @@ bool Snake::selfCollision() {
 	return false;
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Porównuje pozycjê wê¿a (ka¿dego segmentu wê¿a), z danym segmentem wejœciowym.
+//		Zwraca true gdy któryœ segment wê¿a znajdzie siê na tej samej pozycji
+//		co segment wejœciowy.
+/*------------------------------------------------------------------------------------*/
 bool Snake::comparePosition(Field * segment) {
 	if (m_head.getPosition() == segment->getPosition())
 		return true;
@@ -49,6 +70,9 @@ bool Snake::comparePosition(Field * segment) {
 	return false;
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Ustawia kierunek, w którym w¹¿ bêdzie siê porusza³.
+/*------------------------------------------------------------------------------------*/
 void Snake::setDirection(Direction direction) {
 	if (m_direction == FREEZE) return;
 	if (direction == FREEZE) {
@@ -76,10 +100,16 @@ void Snake::setDirection(Direction direction) {
 	}
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Ustawia pocz¹tkow¹ pozycjê wê¿a, gdy nie uzbiera³ jeszcze ¿adnych owoców.
+/*------------------------------------------------------------------------------------*/
 void Snake::setPosition(sf::Vector2i position) {
 	if(!m_fruits) m_head.setPosition(position);
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Powoduje poruszanie siê wê¿a w wybranym kierunku.
+/*------------------------------------------------------------------------------------*/
 bool Snake::move(Fruit& fruit) {
 	if (m_direction == FREEZE) return false;
 
@@ -101,6 +131,9 @@ bool Snake::move(Fruit& fruit) {
 	return fruitHit;
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Powoduje poruszanie siê wê¿a w grze singleplayer.
+/*------------------------------------------------------------------------------------*/
 void Snake::moveSingleplayer(Fruit& fruit) {
 	if (m_collisionEnabled) 
 		if (m_direction == FREEZE) return;
@@ -127,6 +160,9 @@ void Snake::moveSingleplayer(Fruit& fruit) {
 	m_wait = false;
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Sterowanie wê¿em przez komputer.
+/*------------------------------------------------------------------------------------*/
 bool Snake::moveAutomatically(Fruit & fruit) {
 	int random = rand() % 20;
 	if (random >= 0 && random < 14) {
@@ -147,6 +183,9 @@ bool Snake::moveAutomatically(Fruit & fruit) {
 	return this->move(fruit);
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Rysuje elementy gry.
+/*------------------------------------------------------------------------------------*/
 void Snake::draw(sf::RenderTarget & target, sf::RenderStates states) const {
 	if (m_body.tail) {
 		Body::Segment * segment = m_body.tail;
@@ -173,6 +212,9 @@ Snake::Head::Head(sf::Vector2i position, sf::Color color)
 {
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Poruszanie g³ow¹ wê¿a.
+/*------------------------------------------------------------------------------------*/
 void  Snake::Head::move(Direction direction) {
 	if (direction != STOP)
 		m_prev_position = m_position;
@@ -208,6 +250,9 @@ void  Snake::Head::move(Direction direction) {
 	}
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Podaje popzredni¹ pozycjê g³owy.
+/*------------------------------------------------------------------------------------*/
 sf::Vector2i Snake::Head::getPrevPos() const {
 	return m_prev_position;
 }
@@ -220,6 +265,9 @@ Snake::Body::Segment::Segment(sf::Vector2i position, int rotation, sf::Color col
 Snake::Body::Body()
 	: tail(nullptr) {}
 
+/*------------------------------------------------------------------------------------*/
+//		Odpowiednio porusza segmentami wê¿a, tak aby pod¹¿a³y za g³ow¹.
+/*------------------------------------------------------------------------------------*/
 void Snake::Body::follow(const Head & head) {
 	if (!tail) return;
 
@@ -239,6 +287,9 @@ void Snake::Body::follow(const Head & head) {
 	}
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Implementuje zachowanie wê¿a podczas wzrostu.
+/*------------------------------------------------------------------------------------*/
 void Snake::Body::grow(const Head & head) {
 	if (!tail)
 		tail = new Segment(head.getPrevPos(), head.getRotation(), head.getColor(), Field::TailBlock);
@@ -249,6 +300,9 @@ void Snake::Body::grow(const Head & head) {
 	}
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Usuwa wszystkie segmenty wê¿a.
+/*------------------------------------------------------------------------------------*/
 void Snake::Body::deleteAllSegments() {
 	if (!tail) return;
 
@@ -262,6 +316,9 @@ void Snake::Body::deleteAllSegments() {
 	tail = nullptr;
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Przygotowuje pozycjê owocu.
+/*------------------------------------------------------------------------------------*/
 sf::Vector2i Fruit::preparePosition(const Snake& snake) {
 	sf::Vector2i position;
 	bool good = true;
