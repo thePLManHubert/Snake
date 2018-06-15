@@ -7,7 +7,7 @@ namespace Datagram {
 	typedef unsigned short ServerPort;
 	typedef int PlayerID;
 
-	enum TypeOfPacket { RequestPacket, ReplyPacket, QueuePacket, DataPacket, DCPacket };
+	enum TypeOfPacket { RequestPacket, ReplyPacket, StartPacket, QuitPacket, QueuePacket, DataPacket, DCPacket };
 
 
 	struct Request {
@@ -25,6 +25,18 @@ namespace Datagram {
 #ifdef DEBUG
 		char testInfo[50] = "Testowa odpowiedz z serwera";
 #endif
+	};
+
+	struct Start {
+
+		TypeOfPacket type = StartPacket;
+
+	};
+
+	struct Quit {
+
+		TypeOfPacket type = QuitPacket;
+
 	};
 
 	struct Queue {
