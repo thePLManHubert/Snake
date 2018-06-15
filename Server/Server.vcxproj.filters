@@ -3,8 +3,12 @@
   <ItemGroup>
     <ClCompile Include="src\Server.cpp" />
     <ClCompile Include="src\SnakeServer.cpp" />
+    <ClCompile Include="src\ServerGame.cpp" />
+    <ClCompile Include="src\Player.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Server.h" />
+    <ClInclude Include="src\ServerGame.h" />
+    <ClInclude Include="src\Player.h" />
   </ItemGroup>
 </Project>
