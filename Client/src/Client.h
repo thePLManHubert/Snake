@@ -22,8 +22,7 @@ private:
 	char m_data[100];
 	std::size_t m_dataSize;
 	std::thread m_thread;
-	sf::Mutex mutex;
-	Game * game;
+	Game * m_game;
 
 public:
 	Client(Game * game);
@@ -31,7 +30,6 @@ public:
 	~Client();
 
 public:
-	// zwraca informacjê o tym czy po³¹czenie siê powiod³o
 	bool start();
 	void disconnect();
 	void send(const void * data, size_t size);
@@ -42,6 +40,8 @@ private:
 
 private:
 	void process(Datagram::Data * data);
+	void process(Datagram::Start * data);
+	void process(Datagram::Quit * data);
 
 public: // getters
 	bool isConnected() const;

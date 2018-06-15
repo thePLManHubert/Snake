@@ -1,12 +1,14 @@
 #include "Client.h"
 #include <iostream>
 
+
 Client::Client(Game * game)
-	: m_serverIP("192.168.1.100"),
+	: m_serverIP(sf::IpAddress::getLocalAddress()),
 	m_port(sf::Socket::AnyPort),
 	m_serverPort(5000),
 	m_id(-1),
-	m_dataSize(0)
+	m_dataSize(0),
+	m_game(game)
 {
 	start();
 }
@@ -16,7 +18,8 @@ Client::Client(Game * game, sf::IpAddress serverIP, unsigned short serverPort, u
 	m_serverPort(serverPort),
 	m_port(socketPort),
 	m_id(-1),
-	m_dataSize(0)	
+	m_dataSize(0),
+	m_game(game)
 {
 	start();
 }
@@ -25,6 +28,10 @@ Client::~Client() {
 	disconnect();
 }
 
+
+/*------------------------------------------------------------------------------------*/
+//		Nawi¹zuje po³¹czenie z serwerem
+/*------------------------------------------------------------------------------------*/
 bool Client::start() {
 	using namespace Datagram;
 	m_currentStage = Connecting;
@@ -46,6 +53,7 @@ bool Client::start() {
 	// sprawszenie czy odpowiedŸ nadesz³a + odbiór nowego portu serwera i przypisanego id
 	while (requestClock.getElapsedTime().asSeconds() < 5) {
 		if (m_socket.receive(m_data, 100, m_dataSize, m_serverIP, m_serverPort) == sf::Socket::Done) {
+			// sprawdzenie czy na serwerze pozosta³o jakieœ wolne miejsce
 			if (checkType(m_data) != ReplyPacket) {
 #ifdef DEBUG
 				std::cout << "Brak miejsca na serwerze." << std::endl;
@@ -86,17 +94,24 @@ void Client::disconnect() {
 		m_thread.join();
 		Datagram::DC packet;
 		packet.playerID = m_id;
-		send(&packet, sizeof(Datagram::DC));
+		m_socket.send(&packet, sizeof(Datagram::DC), m_serverIP, 5000);
 #ifdef DEBUG
 		std::cout << "Rozlaczono z serwerem." << std::endl;
 #endif
 	}
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Wysy³a do serwera dane na odebrany z serwera port komunikacyjny
+/*------------------------------------------------------------------------------------*/
 void Client::send(const void * data, size_t size) {
 	m_socket.send(data, size, m_serverIP, m_serverPort);
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Nas³uchuje czy serwer wys³a³ jakieœ dane.
+//		Nastêpnie przetwarza odebrane dane.
+/*------------------------------------------------------------------------------------*/
 void Client::listen() {
 	while (isConnected()){
 		if(m_socket.receive(m_data, 100, m_dataSize, m_processIP, m_processPort) == sf::Socket::Done)
@@ -104,6 +119,10 @@ void Client::listen() {
 	}
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Funkcja zleca zadania podrzêdnym funkcjom. W zale¿noœci od typu odebranego
+//		pakietu, dane zawarte w pakiecie s¹ przetwarzane przez dedykowan¹ funkcjê.
+/*------------------------------------------------------------------------------------*/
 void Client::process(void * packet) {
 	using namespace Datagram;
 
@@ -112,22 +131,35 @@ void Client::process(void * packet) {
 	case Datagram::DataPacket:
 		process((Data*)packet);
 		break;
+
+	case Datagram::StartPacket:
+		process((Start*)packet);
+		break;
+
+	case Datagram::QuitPacket:
+		process((Quit*)packet);
+		break;
 	}
 }
 
-void Client::process(Datagram::Data * data) {
-	std::cout << "Przetwarzanie..." << std::endl;
-	std::cout << data->data << std::endl;
-}
-
+/*------------------------------------------------------------------------------------*/
+//		Je¿eli klient jest po³¹czony z serwerem, funkcja zwraca true.
+//		W przeciwnym razie false.
+/*------------------------------------------------------------------------------------*/
 bool Client::isConnected() const {
 	return m_currentStage == Connected;
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Podaje informacjê w jakim stanie znajduje siê klient.
+/*------------------------------------------------------------------------------------*/
 Client::Stage Client::getCurrentStage() const {
 	return m_currentStage;
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Zwraca id klienta.
+/*------------------------------------------------------------------------------------*/
 int Client::getID() const {
 	return m_id;
 }
