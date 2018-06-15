@@ -3,7 +3,7 @@
 
 int main(void) {
 
-	Server server(5000);
+	Server server(5000, 5050);
 	server.start();
 	
 	std::cin.get();
