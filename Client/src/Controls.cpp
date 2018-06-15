@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "Client.h"
 
 
 void Game::controlMenu(sf::Event event, sf::RenderWindow& window) {
@@ -33,14 +34,31 @@ void Game::controlMenu(sf::Event event, sf::RenderWindow& window) {
 /*------------------------------------------------------------------------------------------*/
 
 void Game::controlQueue(sf::Event event, sf::RenderWindow& window) {
-#ifdef DEBUG
-	Datagram::Data data = {
-		Datagram::DataPacket,
-		m_clientPtr->getID(),
-		"Message to Everyone."
-	};
-#endif
+	switch (event.type)
+	{
+	case sf::Event::Closed:
+		window.close();
+		if (m_clientPtr)
+			deleteClient();
+		break;
 
+	case sf::Event::KeyPressed:
+		switch (event.key.code)
+		{
+		case sf::Keyboard::Escape:
+			setStage(InMenu);
+			if (m_clientPtr) {
+				deleteClient();
+			}
+			break;
+		}
+		break;
+	}
+}
+
+/*------------------------------------------------------------------------------------------*/
+
+void Game::controlMultiplayer(sf::Event event, sf::RenderWindow& window) {
 	switch (event.type)
 	{
 	case sf::Event::Closed:
@@ -53,14 +71,12 @@ void Game::controlQueue(sf::Event event, sf::RenderWindow& window) {
 		switch (event.key.code)
 		{
 		case sf::Keyboard::Up:
-#ifdef DEBUG
-			m_clientPtr->send(&data, sizeof(Datagram::Data));
-#endif
+			// do sth...
 			break;
 		case sf::Keyboard::Escape:
-			setStage(InMenu);
 			if (m_clientPtr)
 				deleteClient();
+			setStage(InMenu);
 			break;
 		}
 		break;
@@ -114,27 +130,3 @@ void Game::controlSingleplayer(sf::Event event, sf::RenderWindow& window) {
 		break;
 	}
 }
-
-/*------------------------------------------------------------------------------------------*/
-
-void Game::controlMultiplayer(sf::Event event, sf::RenderWindow& window) {
-	switch (event.type)
-	{
-	case sf::Event::Closed:
-		window.close();
-		break;
-
-	case sf::Event::KeyPressed:
-		switch (event.key.code)
-		{
-		case sf::Keyboard::Up:
-			// do sth...
-			break;
-		case sf::Keyboard::Escape:
-			setStage(InQueue);
-			break;
-		}
-		break;
-	}
-}
-
