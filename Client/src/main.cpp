@@ -18,7 +18,7 @@ int main()
 	window.setTitle("Snake");
 
 	// create game
-	Game game = Game(4);
+	Game game(2);
 
 #ifdef DEBUG
 	window.setVerticalSyncEnabled(false);
@@ -31,8 +31,7 @@ int main()
 	{
 		// check all the window's events that were triggered since the last iteration of the loop
 		sf::Event event;
-		while (window.pollEvent(event))
-		{
+		while (window.pollEvent(event)) {
 			game.control(event, window);
 		}
 		
