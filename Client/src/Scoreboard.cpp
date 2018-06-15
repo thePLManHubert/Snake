@@ -26,6 +26,9 @@ Scoreboard::~Scoreboard() {
 	m_timeText = nullptr;
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Jednorazowo ³aduje do pamiêci potrzebne dane o tablicy wyników.
+/*------------------------------------------------------------------------------------*/
 bool Scoreboard::load(const std::string & tileset, const std::string & fontName){
 	if (!m_texture.loadFromFile(tileset))
 		return false;
@@ -70,6 +73,9 @@ bool Scoreboard::load(const std::string & tileset, const std::string & fontName)
 	return true;
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Zwraca true gdy up³ynê³a sekunda.
+/*------------------------------------------------------------------------------------*/
 bool Scoreboard::tick() {
 	if (m_prevTime != (int)m_clockPtr->getElapsedTime().asSeconds()) {
 		m_prevTime++;
@@ -78,6 +84,9 @@ bool Scoreboard::tick() {
 	else return false;
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Odœwie¿a wynik gry.
+/*------------------------------------------------------------------------------------*/
 void Scoreboard::updateScore() {
 	for (int player = 0; player < m_nPlayers; player++) {
 		auto str = std::to_string(m_snakes[player]->m_fruits);
@@ -85,6 +94,9 @@ void Scoreboard::updateScore() {
 	}
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Odœwie¿a czas do koñca gry.
+/*------------------------------------------------------------------------------------*/
 void Scoreboard::updateTime() {
 
 	if (tick()) {
@@ -100,21 +112,33 @@ void Scoreboard::updateTime() {
 	m_timeText->setString(time_str);
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Zbiorcza funkcja odœwie¿aj¹ca dane o grze.
+/*------------------------------------------------------------------------------------*/
 void Scoreboard::update() {
 	updateScore();
 	updateTime();
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Ustawia czas w grze.
+/*------------------------------------------------------------------------------------*/
 void Scoreboard::setTime(int time) {
 	m_min = time / 60;
 	m_sec = time % 60;
 	m_prevTime = 0;
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Zwraca true gdy gra siê zakoñczy.
+/*------------------------------------------------------------------------------------*/
 bool Scoreboard::timeUp() {
 	return (m_min == 0 && m_sec == 0);
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Rysuje tablicê wyników.
+/*------------------------------------------------------------------------------------*/
 void Scoreboard::draw(sf::RenderTarget & target, sf::RenderStates states) const {
 	
 	states.texture = &m_texture;
