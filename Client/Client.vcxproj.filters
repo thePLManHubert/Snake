@@ -7,11 +7,12 @@
     <ClCompile Include="src\Fruit.cpp" />
     <ClCompile Include="src\TileMap.cpp" />
     <ClCompile Include="src\Scoreboard.cpp" />
-    <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\Client.cpp" />
     <ClCompile Include="src\Controls.cpp" />
     <ClCompile Include="src\Updates.cpp" />
     <ClCompile Include="src\Drawings.cpp" />
+    <ClCompile Include="src\Game.cpp" />
+    <ClCompile Include="src\Process.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Snake.h" />
@@ -19,7 +20,7 @@
     <ClInclude Include="src\Fruit.h" />
     <ClInclude Include="src\TileMap.h" />
     <ClInclude Include="src\Scoreboard.h" />
-    <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\Client.h" />
+    <ClInclude Include="src\Game.h" />
   </ItemGroup>
 </Project>
