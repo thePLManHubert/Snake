@@ -7,8 +7,8 @@ namespace Datagram {
 	typedef unsigned short ServerPort;
 	typedef int PlayerID;
 
-	enum TypeOfPacket { RequestPacket, ReplyPacket, StartPacket, QuitPacket, QueuePacket, DataPacket, DCPacket };
-
+	enum TypeOfPacket { RequestPacket, ReplyPacket, StartPacket, QuitPacket, QueuePacket, DataPacket, DCPacket, SyncPacket };
+	enum Direction { UP, DOWN, LEFT, RIGHT, STOP, FREEZE };
 
 	struct Request {
 
@@ -30,6 +30,12 @@ namespace Datagram {
 	struct Start {
 
 		TypeOfPacket type = StartPacket;
+		int id;
+		int id1;
+		int id2;
+		sf::Vector2i position1;
+		sf::Vector2i position2;
+		unsigned int gamePort;
 
 	};
 
@@ -51,7 +57,8 @@ namespace Datagram {
 
 		TypeOfPacket type = DataPacket;
 		PlayerID playerID;
-		char data[80];
+		Direction direction;
+		char data[50];
 
 	};
 
@@ -59,6 +66,12 @@ namespace Datagram {
 
 		TypeOfPacket type = DCPacket;
 		PlayerID playerID;
+
+	};
+
+	struct Sync {
+
+		TypeOfPacket type = SyncPacket;
 
 	};
 

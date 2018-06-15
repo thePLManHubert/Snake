@@ -21,7 +21,7 @@ int main()
 	Game game(2);
 
 #ifdef DEBUG
-	window.setVerticalSyncEnabled(false);
+	window.setVerticalSyncEnabled(true);
 	sf::Clock clk;
 	sf::Clock fpsClock;
 #endif

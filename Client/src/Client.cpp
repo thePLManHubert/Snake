@@ -137,7 +137,11 @@ void Client::process(void * packet) {
 		break;
 
 	case Datagram::QuitPacket:
-		process((Quit*)packet);
+		process((Start*)packet);
+		break;
+
+	case Datagram::SyncPacket:
+		process((Sync*)packet);
 		break;
 	}
 }

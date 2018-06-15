@@ -7,27 +7,33 @@
 //		Funkcja s³u¿¹ca do przetwarzania danych.
 /*------------------------------------------------------------------------------------*/
 void Client::process(Datagram::Data * data) {
-	std::cout << "Przetwarzanie..." << std::endl;
-	std::cout << data->data << std::endl;
+	std::cout << "id: " << data->playerID << " " << data->direction << std::endl;
+	m_game->approveChanges(data);
 }
 
 /*------------------------------------------------------------------------------------*/
 //		Funkcja s³u¿¹ca do reagowania na sygna³ startu.
 /*------------------------------------------------------------------------------------*/
-void Client::process(Datagram::Start * data) {
+void Client::process(Datagram::Start * start) {
 	std::cout << "Start." << std::endl;
-	m_game->startMultiplayer();
+	m_serverPort = start->gamePort;
+	m_game->startMultiplayer(start);
 	m_game->setStage(Game::InMultiplayer);
 }
 
 /*------------------------------------------------------------------------------------*/
 //		Funkcja s³u¿¹ca do reagowania na sygna³ roz³¹czenia.
 /*------------------------------------------------------------------------------------*/
-void Client::process(Datagram::Quit * data) {
+void Client::process(Datagram::Quit * quit) {
 	m_game->setStage(Game::InQueue);
 }
 
-
+/*------------------------------------------------------------------------------------*/
+//		Funkcja s³u¿¹ca do synchronizacji klientów.
+/*------------------------------------------------------------------------------------*/
+void Client::process(Datagram::Sync * sync) {
+	m_game->m_updateGame = true;
+}
 
 /*------------------------------------------------------------------------------------*/
 //		Ustawia grê w odpowiednie stan.

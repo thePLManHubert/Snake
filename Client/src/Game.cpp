@@ -13,6 +13,7 @@ Game::Game(int maxnPlayers, int gameTime, bool collision)
 	m_scoreboardPtr(nullptr),
 	m_fruitPtr(nullptr),
 	m_textureUpdated(false),
+	m_updateGame(false),
 	m_clientPtr(nullptr)
 {
 	srand(time(NULL));
@@ -114,17 +115,32 @@ void Game::startSingleplayer() {
 /*------------------------------------------------------------------------------------*/
 //		Dokonuje jednorazowego za³adowania danych do gry multiplayer.
 /*------------------------------------------------------------------------------------*/
-void Game::startMultiplayer() {
+void Game::startMultiplayer(Datagram::Start * start) {
 	m_snakesPtr = new Snake*[MAX_PLAYERS];
-
-	m_snakesPtr[0] = new Snake({ 4 * FIELD_WIDTH, 5 * FIELD_HEIGHT }, sf::Color(15, 150, 0, 200), 20, false);
-	m_snakesPtr[1] = new Snake({ MAP_WIDTH - 5 * FIELD_WIDTH, 5 * FIELD_HEIGHT }, sf::Color(240, 0, 0, 200), 20, false);
+	if (start->id == start->id1) {
+		m_snakesPtr[0] = new Snake(start->position1, start->id1, sf::Color(15, 150, 0, 200), 20, false);
+		m_snakesPtr[1] = new Snake(start->position2, start->id2, sf::Color(240, 0, 0, 200), 20, false);
+	}
+	else {
+		m_snakesPtr[0] = new Snake(start->position2, start->id2, sf::Color(15, 150, 0, 200), 20, false);
+		m_snakesPtr[1] = new Snake(start->position1, start->id1, sf::Color(240, 0, 0, 200), 20, false);
+	}
 
 	m_nPlayers = 2;
 	m_scoreboardPtr = new Scoreboard(m_snakesPtr, m_nPlayers, &m_clock, m_playingLength);
 
 	m_fruitPtr = new Fruit(m_fruitPtr->preparePosition(*this));
 	m_clock.restart();
+}
+
+/*------------------------------------------------------------------------------------*/
+//		Przyjmuje dane z serwera i stosuje je do gry.
+/*------------------------------------------------------------------------------------*/
+void Game::approveChanges(Datagram::Data * data) {
+	for (int i = 0; i < MAX_PLAYERS; i++) {
+		if(m_snakesPtr[i]->m_id == data->playerID)
+			m_snakesPtr[i]->setDirection((Snake::Direction)data->direction);
+	}
 }
 
 /*------------------------------------------------------------------------------------*/

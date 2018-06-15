@@ -40,8 +40,9 @@ private:
 
 private:
 	void process(Datagram::Data * data);
-	void process(Datagram::Start * data);
-	void process(Datagram::Quit * data);
+	void process(Datagram::Start * start);
+	void process(Datagram::Quit * quit);
+	void process(Datagram::Sync * sync);
 
 public: // getters
 	bool isConnected() const;

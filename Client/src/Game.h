@@ -1,4 +1,5 @@
 #pragma once
+#include "packets.h"
 #include "TileMap.h"
 #include "Snake.h"
 #include "Scoreboard.h"
@@ -27,6 +28,7 @@ private:
 	sf::Mutex mutex;
 
 public:
+	bool m_updateGame;
 	Client * m_clientPtr;
 
 public:
@@ -40,7 +42,8 @@ public:
 
 	// Singleplayer game
 	void startSingleplayer();
-	void startMultiplayer();
+	void startMultiplayer(Datagram::Start * start);
+	void approveChanges(Datagram::Data * data);
 	void resetSingleplayer();
 	void resetPlayerStatus();
 

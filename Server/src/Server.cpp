@@ -1,4 +1,5 @@
 #include "Server.h"
+#include "Globals.h"
 #include <iostream>
 
 
@@ -43,7 +44,14 @@ void Server::listen() {
 //		Nas³uchuje zg³oszeñ od pod³¹czonych klientów.
 /*------------------------------------------------------------------------------------*/
 void Server::play() {
-	while (m_playing) {	
+	sf::Clock clock;
+	Datagram::Sync sync;
+	while (m_playing) {
+		if (clock.getElapsedTime().asSeconds() > 0.2) {
+			for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++)
+				broadcast(&sync, sizeof(Datagram::Sync), m_game.m_players[i]->ip, m_game.m_players[i]->port);
+			clock.restart();
+		}
 		if (m_gameSocket.receive(m_receivedGameData, MAX_DATA_SIZE, m_receivedGameSize, m_playerAddress, m_playerPort) == sf::Socket::Done) {
 			process(m_receivedGameData);
 		}
@@ -122,8 +130,16 @@ void Server::process(Datagram::Request * request) {
 		m_playing = true;
 
 		Start start;
-		for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++)
+		start.id1 = m_game.m_players[0]->id;
+		start.id2 = m_game.m_players[1]->id;
+		start.position1 = { 4 * FIELD_WIDTH, 5 * FIELD_HEIGHT };
+		start.position2 = { MAP_WIDTH - 5 * FIELD_WIDTH, 5 * FIELD_HEIGHT };
+		start.gamePort = m_gamePort;
+
+		for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
+			start.id = m_game.m_players[i]->id;
 			send(&start, sizeof(Start), m_game.m_players[i]->ip, m_game.m_players[i]->port);
+		}
 
 		m_gameThread = std::thread(&Server::play, this);
 	}
