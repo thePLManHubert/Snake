@@ -25,6 +25,10 @@ Game::~Game() {
 		deleteClient();
 }
 
+/*------------------------------------------------------------------------------------*/
+//		W zale¿noœci od tego w jakim stanie znajduje siê gra, poddaje kontrolê
+//		nad gr¹ pod dany zestaw przycisków.
+/*------------------------------------------------------------------------------------*/
 void Game::control(sf::Event & event, sf::RenderWindow& window) {
 	switch (m_stage) {
 	case InMenu:
@@ -77,10 +81,23 @@ void Game::draw(sf::RenderTarget & target, sf::RenderStates states) const {
 	}
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Dokonuje jednorazowego za³adowania tekstury menu.
+/*------------------------------------------------------------------------------------*/
 void Game::loadMenu() {
 	if (!m_texture.loadFromFile("resources/SnakeMenu.png")) return;
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Dokonuje jednorazowego za³adowania tekstury kolejki.
+/*------------------------------------------------------------------------------------*/
+void Game::loadQueue() {
+	if (!m_texture.loadFromFile("resources/SnakeQueue.png")) return;
+}
+
+/*------------------------------------------------------------------------------------*/
+//		Dokonuje jednorazowego za³adowania danych do gry singleplayer.
+/*------------------------------------------------------------------------------------*/
 void Game::startSingleplayer() {
 	m_snakesPtr = new Snake*[MAX_PLAYERS];
 
@@ -94,6 +111,25 @@ void Game::startSingleplayer() {
 	m_clock.restart();
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Dokonuje jednorazowego za³adowania danych do gry multiplayer.
+/*------------------------------------------------------------------------------------*/
+void Game::startMultiplayer() {
+	m_snakesPtr = new Snake*[MAX_PLAYERS];
+
+	m_snakesPtr[0] = new Snake({ 4 * FIELD_WIDTH, 5 * FIELD_HEIGHT }, sf::Color(15, 150, 0, 200), 20, false);
+	m_snakesPtr[1] = new Snake({ MAP_WIDTH - 5 * FIELD_WIDTH, 5 * FIELD_HEIGHT }, sf::Color(240, 0, 0, 200), 20, false);
+
+	m_nPlayers = 2;
+	m_scoreboardPtr = new Scoreboard(m_snakesPtr, m_nPlayers, &m_clock, m_playingLength);
+
+	m_fruitPtr = new Fruit(m_fruitPtr->preparePosition(*this));
+	m_clock.restart();
+}
+
+/*------------------------------------------------------------------------------------*/
+//		Resetuje grê singleplayer.
+/*------------------------------------------------------------------------------------*/
 void Game::resetSingleplayer() {
 	if (m_snakesPtr)
 		for (int i = 0; i < m_nPlayers; i++) {
@@ -105,35 +141,18 @@ void Game::resetSingleplayer() {
 	m_clock.restart();
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Resetuje dane o graczu w grze singleplayer.
+/*------------------------------------------------------------------------------------*/
 void Game::resetPlayerStatus() {
 	m_snakesPtr[0]->m_body.deleteAllSegments();
 	m_snakesPtr[0]->m_fruits = 0;
 	m_snakesPtr[0]->m_direction = Snake::Direction::STOP;
 }
 
-void Game::closeGame() {
-	if (m_snakesPtr) {
-		Snake ** player = m_snakesPtr;
-		for (int i = 0; i < m_nPlayers; i++)
-			delete player[i];
-		delete[] m_snakesPtr;
-		m_snakesPtr = nullptr;
-	}
-	if (m_fruitPtr) {
-		delete m_fruitPtr;
-		m_fruitPtr = nullptr;
-	}
-	if (m_scoreboardPtr) {
-		delete m_scoreboardPtr;
-		m_scoreboardPtr = nullptr;
-	}
-}
-
-void Game::deleteClient() {
-	delete m_clientPtr;
-	m_clientPtr = nullptr;
-}
-
+/*------------------------------------------------------------------------------------*/
+//		Sprawdza czy nast¹pi³a kolizja dwóch wê¿ów.
+/*------------------------------------------------------------------------------------*/
 void Game::detectCollision() {
 	if (!m_snakesPtr || m_clock.getElapsedTime().asSeconds() < 1) return;
 
@@ -146,6 +165,9 @@ void Game::detectCollision() {
 	}
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Przygotowuje pozycjê owocu tak aby nie nak³ada³ siê on na cia³o wê¿a.
+/*------------------------------------------------------------------------------------*/
 sf::Vector2i Fruit::preparePosition(Game & game) {
 	sf::Vector2i position;
 	bool good = true;
@@ -179,24 +201,6 @@ sf::Vector2i Fruit::preparePosition(Game & game) {
 	std::cout << "Generowano " << i << " razy." << std::endl;
 #endif
 	return position;
-}
-
-void Game::setStage(Stage stage) {
-	m_stage = stage;
-
-	switch (m_stage) {
-	case InMenu:
-		loadMenu();
-		closeGame();
-		break;
-	case InQueue:
-		break;
-	case InSingleplayer:
-		startSingleplayer();
-		break;
-	case InMultiplayer:
-		break;
-	}
 }
 
 // gettery

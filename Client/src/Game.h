@@ -2,8 +2,8 @@
 #include "TileMap.h"
 #include "Snake.h"
 #include "Scoreboard.h"
-#include "Client.h"
 
+class Client;
 
 class Game : public sf::Drawable {
 public:
@@ -24,20 +24,23 @@ private:
 	sf::Texture m_texture;
 	sf::Sprite m_sprite;
 	bool m_textureUpdated;
+	sf::Mutex mutex;
 
 public:
 	Client * m_clientPtr;
 
 public:
-	Game(int maxnPlayers = 4, int gameTime = 180, bool collision = true);
+	Game(int maxnPlayers, int gameTime = 180, bool collision = true);
 	~Game();
 
 	void loadMenu();
+	void loadQueue();
 	void control(sf::Event& event, sf::RenderWindow& window);
 	void update();
 
 	// Singleplayer game
 	void startSingleplayer();
+	void startMultiplayer();
 	void resetSingleplayer();
 	void resetPlayerStatus();
 
