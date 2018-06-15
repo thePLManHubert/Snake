@@ -1,25 +1,12 @@
 #pragma once
 #include "packets.h"
+#include "ServerGame.h"
 #include <SFML/Network.hpp>
 #include <thread>
 
 
-struct Player {
-	sf::IpAddress ip;
-	unsigned short port;
-	int id;
-
-	Player(sf::IpAddress ip, unsigned short port, int id)
-		:ip(ip),
-		port(port),
-		id(id)
-	{
-	}
-};
-
 class Server {
 	static const int MAX_DATA_SIZE = 100;
-	static const int MAX_PLAYER_NUMBER = 10;
 
 private:
 	unsigned short m_listeningPort;
@@ -38,19 +25,18 @@ private:
 	sf::IpAddress m_playerAddress;
 	unsigned short m_playerPort;
 	unsigned short m_senderPort;
-	int m_nPlayers;
 	bool m_playerAdded;
-	Player * m_players[4] = {nullptr};
+	ServerGame m_game;
 
 
 public:
-	Server(unsigned short port) : 
-		m_listeningPort(port), 
-		m_gamePort(port),
+	Server(unsigned short port, unsigned short gamePort) :
+		m_listeningPort(port),
+		m_gamePort(gamePort),
 		m_listening(false),
 		m_playing(false),
-		m_nPlayers(0),
-		m_playerAdded(false)
+		m_playerAdded(false),
+		m_game(ServerGame())
 	{
 	}
 
@@ -64,7 +50,6 @@ private:
 	void play();
 	void process(void* packet);
 	void process(Datagram::Request * request);
-	void process(Datagram::Queue * queue);
 	void process(Datagram::Data * data);
 	void process(Datagram::DC * dc);
 

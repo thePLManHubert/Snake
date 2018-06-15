@@ -2,6 +2,9 @@
 #include <iostream>
 
 
+/*------------------------------------------------------------------------------------*/
+//		Uruchamia nowy serwer pod wskazanym portem i w³¹cza nas³uchiwanie.
+/*------------------------------------------------------------------------------------*/
 void Server::start() {
 	if (m_listeningSocket.bind(m_listeningPort) != sf::Socket::Done) {
 		return;
@@ -11,6 +14,9 @@ void Server::start() {
 	m_listenThread = std::thread(&Server::listen, this);
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Wy³¹cza serwer.
+/*------------------------------------------------------------------------------------*/
 void Server::shutdown() {
 	if (m_listening) {
 		m_listening = false;
@@ -22,6 +28,9 @@ void Server::shutdown() {
 	}
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Nas³uchuje zg³oszeñ od klintów, którzy maj¹ zamiar siê pod³¹czyæ.
+/*------------------------------------------------------------------------------------*/
 void Server::listen() {
 	while (m_listening) {
 		if (m_listeningSocket.receive(m_receivedData, MAX_DATA_SIZE, m_receivedSize, m_senderAddress, m_senderPort) == sf::Socket::Done) {
@@ -30,6 +39,9 @@ void Server::listen() {
 	}
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Nas³uchuje zg³oszeñ od pod³¹czonych klientów.
+/*------------------------------------------------------------------------------------*/
 void Server::play() {
 	while (m_playing) {	
 		if (m_gameSocket.receive(m_receivedGameData, MAX_DATA_SIZE, m_receivedGameSize, m_playerAddress, m_playerPort) == sf::Socket::Done) {
@@ -38,6 +50,10 @@ void Server::play() {
 	}
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Funkcja zleca zadania podrzêdnym funkcjom. W zale¿noœci od typu odebranego
+//		pakietu, dane zawarte w pakiecie s¹ przetwarzane przez dedykowan¹ funkcjê.
+/*------------------------------------------------------------------------------------*/
 void Server::process(void* packet) {
 	using namespace Datagram;
 
@@ -48,51 +64,47 @@ void Server::process(void* packet) {
 		process((Request*)packet);
 		break;
 
-	case DataPacket:
-		process((Data*)packet);
-		break;
-
-	case QueuePacket:
-		process((Queue*)packet);
-		break;
-
 	case DCPacket:
 		process((DC*)packet);
+		break;
+
+	case DataPacket:
+		process((Data*)packet);
 		break;
 	}
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Przetwarza pakiet typu Request.
+/*------------------------------------------------------------------------------------*/
 void Server::process(Datagram::Request * request) {
 	using namespace Datagram;
 
 #ifdef DEBUG
 	std::cout << "Otrzymano RequestPacket z " << m_senderAddress << ":" << m_senderPort << std::endl;
 #endif
-
-	if (m_gamePort == m_listeningPort) {
-		m_gamePort = 5050;
-		m_gameSocket.bind(m_gamePort);
-		m_gameSocket.setBlocking(false);
-		m_playing = true;
-		m_gameThread = std::thread(&Server::play, this);
-	}
-	m_nPlayers++;
-	for (int i = 0; i < 4; i++) {
-		if (!m_players[i]) {
-			m_players[i] = new Player(m_senderAddress, m_senderPort, m_nPlayers);
+	// zapewnienie unikalnego id w ramach pojedynczego uruchomienia serwera
+	m_game.m_nPlayers++;
+	// sprawdzenie czy na serwerze znajduje siê jeszcze jakiœ wolny slot
+	for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
+		if (!m_game.m_players[i]) {
+			// przydziel graczowi miejsce
+			m_game.m_players[i] = new Player(m_senderAddress, m_senderPort, m_game.m_nPlayers);
 #ifdef DEBUG
-			std::cout << "Przydzielono id: " << m_nPlayers << std::endl;
+			std::cout << "Przydzielono id: " << m_game.m_nPlayers << std::endl;
 			std::cout << "Dodano nowego gracza." << std::endl;
 #endif
+			// daj znaæ, ¿e gracz zosta³ dodany
 			m_playerAdded = true;
 			break;
 		}
 	}
-	
+
+	// je¿eli gracz zosta³ dodany, wyœlij informacjê do klienta, ¿e tak siê sta³o
 	if (m_playerAdded && request->playerID == -1) {
 		m_playerAdded = false;
 		Reply reply;
-		reply.playerID = m_nPlayers;
+		reply.playerID = m_game.m_nPlayers;
 		reply.newServerPort = m_gamePort;
 		send(&reply, sizeof(Reply), m_senderAddress, m_senderPort);
 	}
@@ -102,24 +114,39 @@ void Server::process(Datagram::Request * request) {
 		std::cout << "Brak miejsca na serwerze." << std::endl;
 #endif
 	}
-}
 
-void Server::process(Datagram::Queue * queue) {
+	// je¿eli wszyscy gracze do³¹czyli do gry, stwórz nowy w¹tek z gr¹
+	if (m_game.isFull() && !m_playing) {
+		m_gameSocket.bind(m_gamePort);
+		m_gameSocket.setBlocking(false);
+		m_playing = true;
 
-}
+		Start start;
+		for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++)
+			send(&start, sizeof(Start), m_game.m_players[i]->ip, m_game.m_players[i]->port);
 
-void Server::process(Datagram::Data * data) {
-	using namespace Datagram;
-	for (int i = 0; i < 4; i++) {
-		if (m_players[i] && (m_players[i]->id != data->playerID))
-			broadcast(data, sizeof(Data), m_players[i]->ip, m_players[i]->port);
+		m_gameThread = std::thread(&Server::play, this);
 	}
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Przetwarza pakiet typu DC.
+/*------------------------------------------------------------------------------------*/
 void Server::process(Datagram::DC * dc) {
-	for (int i = 0; i < 4; i++) {
-		if (m_players[i] && (m_players[i]->id == dc->playerID)) {
-			m_players[i] = nullptr;
+	// usuñ w¹tek gry, od³¹cz socket
+	if (m_playing) {
+		m_gameSocket.unbind();
+		m_playing = false;
+		m_gameThread.join();
+	}
+	// wyrzuæ z gry wszystkich graczy i usuñ z listy tych, którzy siê roz³¹czyli
+	Datagram::Quit quit;
+	for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
+		if (m_game.m_players[i])
+			send(&quit, sizeof(Datagram::Quit), m_game.m_players[i]->ip, m_game.m_players[i]->port);
+		if (m_game.m_players[i] && (m_game.m_players[i]->id == dc->playerID)) {
+			delete m_game.m_players[i];
+			m_game.m_players[i] = nullptr;
 #ifdef DEBUG
 			std::cout << "Rozlaczono gracza o id: " << dc->playerID << std::endl;
 #endif
@@ -127,10 +154,27 @@ void Server::process(Datagram::DC * dc) {
 	}
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Przetwarza pakiet typu Data.
+/*------------------------------------------------------------------------------------*/
+void Server::process(Datagram::Data * data) {
+	using namespace Datagram;
+	for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
+		if (m_game.m_players[i]) //&& (m_players[i]->id != data->playerID))
+			broadcast(data, sizeof(Data), m_game.m_players[i]->ip, m_game.m_players[i]->port);
+	}
+}
+
+/*------------------------------------------------------------------------------------*/
+//		Wysy³a dane do klientów oczekuj¹cych pod³¹czenia do serwera.
+/*------------------------------------------------------------------------------------*/
 void Server::send(const void * data, size_t size, const sf::IpAddress address, unsigned short port) {
 	m_listeningSocket.send(data, size, address, port);
 }
 
+/*------------------------------------------------------------------------------------*/
+//		Wysy³a dane do wszysktich uczestników gry.
+/*------------------------------------------------------------------------------------*/
 void Server::broadcast(const void * data, size_t size, const sf::IpAddress address, unsigned short port) {
 	m_gameSocket.send(data, size, address, port);
 }
