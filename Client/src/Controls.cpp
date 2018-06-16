@@ -75,18 +75,23 @@ void Game::controlMultiplayer(sf::Event event, sf::RenderWindow& window) {
 		{
 		case sf::Keyboard::Up:
 			data.direction = (Datagram::Direction)Snake::Direction::UP;
+			m_clientPtr->send(&data, sizeof(Datagram::Data));
 			break;
 		case sf::Keyboard::Down:
 			data.direction = (Datagram::Direction)Snake::Direction::DOWN;
+			m_clientPtr->send(&data, sizeof(Datagram::Data));
 			break;
 		case sf::Keyboard::Left:
 			data.direction = (Datagram::Direction)Snake::Direction::LEFT;
+			m_clientPtr->send(&data, sizeof(Datagram::Data));
 			break;
 		case sf::Keyboard::Right:
 			data.direction = (Datagram::Direction)Snake::Direction::RIGHT;
+			m_clientPtr->send(&data, sizeof(Datagram::Data));
 			break;
 		case sf::Keyboard::Space:
 			data.direction = (Datagram::Direction)Snake::Direction::STOP;
+			m_clientPtr->send(&data, sizeof(Datagram::Data));
 			break;
 		case sf::Keyboard::Escape:
 			if (m_clientPtr)
@@ -94,8 +99,7 @@ void Game::controlMultiplayer(sf::Event event, sf::RenderWindow& window) {
 			setStage(InMenu);
 			break;
 		}
-		if (m_clientPtr) 
-			m_clientPtr->send(&data, sizeof(Datagram::Data));
+			
 	}
 }
 
