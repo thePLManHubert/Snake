@@ -50,7 +50,8 @@ void Server::play() {
 	while (m_playing) {
 		if (clock.getElapsedTime().asSeconds() > 0.1) {
 			for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++)
-				broadcast(&sync, sizeof(Datagram::Sync), m_game.m_players[i]->ip, m_game.m_players[i]->port);
+				if(m_game.m_players[i])
+					broadcast(&sync, sizeof(Datagram::Sync), m_game.m_players[i]->ip, m_game.m_players[i]->port);
 			clock.restart();
 		}
 		if (m_gameSocket.receive(m_receivedGameData, MAX_DATA_SIZE, m_receivedGameSize, m_playerAddress, m_playerPort) == sf::Socket::Done) {
@@ -181,8 +182,8 @@ void Server::process(Datagram::DC * dc) {
 void Server::process(Datagram::Data * data) {
 	using namespace Datagram;
 	for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
-		if (m_game.m_players[i]) //&& (m_players[i]->id != data->playerID))
-			broadcast(data, sizeof(Data), m_game.m_players[i]->ip, m_game.m_players[i]->port);
+		if (m_game.m_players[i])  //&& (m_players[i]->id != data->playerID))
+			broadcast(data, sizeof(Data), m_game.m_players[i]->ip, m_game.m_players[i]->port);	
 	}
 }
 
