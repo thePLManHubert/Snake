@@ -2,6 +2,7 @@
 #include <iostream>
 
 
+// u¿ywany do gry singleplayer
 Snake::Snake(sf::Vector2i headPosition, sf::Color color, int limit, bool collision)
 	: m_head(headPosition, color),
 	m_color(color),
@@ -14,7 +15,8 @@ Snake::Snake(sf::Vector2i headPosition, sf::Color color, int limit, bool collisi
 {
 }
 
-Snake::Snake(sf::Vector2i headPosition, int id, sf::Color color, int limit, bool collision)
+// u¿ywany do gry multiplayer
+Snake::Snake(unsigned short headPosition, int id, sf::Color color, int limit, bool collision)
 	: m_head(headPosition, color),
 	m_color(color),
 	m_direction(STOP),
@@ -23,12 +25,17 @@ Snake::Snake(sf::Vector2i headPosition, int id, sf::Color color, int limit, bool
 	m_limit(limit),
 	m_collisionEnabled(collision),
 	m_wait(false),
-	m_id(id)
+	m_id(id),
+	m_mappedPtr(nullptr)
 {
 }
 
 Snake::~Snake() {
 	m_body.deleteAllSegments();
+	if (m_mappedPtr) {
+		delete m_mappedPtr;
+		m_mappedPtr = nullptr;
+	}
 }
 
 /*------------------------------------------------------------------------------------*/
@@ -68,6 +75,24 @@ bool Snake::comparePosition(Field * segment) {
 		return true;
 
 	return false;
+}
+
+/*------------------------------------------------------------------------------------*/
+//		Przek³ada segmenty wê¿a na ³atw¹ do przes³ania tablicê.
+/*------------------------------------------------------------------------------------*/
+unsigned short * Snake::map() {
+	m_mappedPtr = new unsigned short[m_fruits + 2];
+	m_mappedPtr[0] = m_fruits + 1; // liczba wszystkich segmentów
+	m_mappedPtr[1] = m_head.getPosition().y / FIELD_HEIGHT * MAP_X + m_head.getPosition().x / FIELD_WIDTH; // pozycja g³owy
+
+	if (m_body.tail) {
+		Body::Segment * temp = m_body.tail;
+		for (int i = 2; temp->next; temp = temp->next, i++) { // reszta cia³a wê¿a
+			m_mappedPtr[i] = temp->getPosition().y / FIELD_HEIGHT * MAP_X + temp->getPosition().x / FIELD_WIDTH;
+		}
+		m_mappedPtr[m_fruits + 1] = temp->getPosition().y / FIELD_HEIGHT * MAP_X + temp->getPosition().x / FIELD_WIDTH;
+	}
+	return m_mappedPtr;
 }
 
 /*------------------------------------------------------------------------------------*/
@@ -212,6 +237,12 @@ Snake::Head::Head(sf::Vector2i position, sf::Color color)
 {
 }
 
+Snake::Head::Head(unsigned short position, sf::Color color) 
+	: Field(position, color, HeadBlock),
+	m_prev_position(0, 0)
+{
+}
+
 /*------------------------------------------------------------------------------------*/
 //		Poruszanie g³ow¹ wê¿a.
 /*------------------------------------------------------------------------------------*/
@@ -258,6 +289,11 @@ sf::Vector2i Snake::Head::getPrevPos() const {
 }
 
 Snake::Body::Segment::Segment(sf::Vector2i position, int rotation, sf::Color color, Type type)
+	: Field(position, rotation, color, type) {
+	next = nullptr;
+}
+
+Snake::Body::Segment::Segment(unsigned short position, int rotation, sf::Color color, Type type) 
 	: Field(position, rotation, color, type) {
 	next = nullptr;
 }

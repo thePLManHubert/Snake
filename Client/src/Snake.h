@@ -17,6 +17,7 @@ public:
 
 	public:
 		Head(sf::Vector2i position, sf::Color color = sf::Color::White);
+		Head(unsigned short position, sf::Color color = sf::Color::White);
 
 	public:
 		void move(Direction direction);
@@ -33,7 +34,7 @@ public:
 
 		public:
 			Segment(sf::Vector2i position, int rotation = 0, sf::Color color = sf::Color::White, Type type = BodyBlock);
-
+			Segment(unsigned short position, int rotation = 0, sf::Color color = sf::Color::White, Type type = BodyBlock);
 		};
 
 	public:
@@ -60,10 +61,11 @@ public:
 	bool m_collisionEnabled;
 	bool m_wait;
 	int m_id;
+	unsigned short * m_mappedPtr;
 
 public:
 	Snake(sf::Vector2i headPosition, sf::Color color, int limit = 1000, bool collision = false);
-	Snake(sf::Vector2i headPosition, int id, sf::Color color, int limit = 1000, bool collision = false);
+	Snake(unsigned short headPosition, int id, sf::Color color, int limit = 1000, bool collision = false);
 	~Snake();
 
 	void setDirection(Direction direction);
@@ -74,6 +76,10 @@ public:
 	bool moveAutomatically(Fruit& fruit);
 
 	bool comparePosition(Field* segment);
+
+	// metody multiplayera
+	unsigned short * map();
+
 
 private:
 	bool selfCollision();

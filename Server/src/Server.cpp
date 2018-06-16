@@ -46,12 +46,16 @@ void Server::listen() {
 void Server::play() {
 	sf::Clock clock;
 	Datagram::Sync sync;
+	Datagram::Data data;
 
 	while (m_playing) {
 		if (clock.getElapsedTime().asSeconds() > 0.1) {
+			// odœwie¿ pozycjê wê¿ów
 			for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++)
-				if(m_game.m_players[i])
+				if (m_game.m_players[i]) {
+					// przeœlij pozycjê wê¿ów
 					broadcast(&sync, sizeof(Datagram::Sync), m_game.m_players[i]->ip, m_game.m_players[i]->port);
+				}
 			clock.restart();
 		}
 		if (m_gameSocket.receive(m_receivedGameData, MAX_DATA_SIZE, m_receivedGameSize, m_playerAddress, m_playerPort) == sf::Socket::Done) {
@@ -104,6 +108,17 @@ void Server::process(Datagram::Request * request) {
 			std::cout << "Przydzielono id: " << m_game.m_nPlayers << std::endl;
 			std::cout << "Dodano nowego gracza." << std::endl;
 #endif
+			// ustaw pozycje pocz¹tkowe wê¿ów na serwerze
+			if (m_game.m_players[0]) {
+				if(!m_game.m_players[0]->position[0])
+					m_game.m_players[0]->position[0] = new unsigned short;
+				*m_game.m_players[0]->position[0] = 4 * MAP_X + 5;
+			}
+			if (m_game.m_players[1]) {
+				if(!m_game.m_players[1]->position[0])
+					m_game.m_players[1]->position[0] = new unsigned short;
+				*m_game.m_players[1]->position[0] = 4 * MAP_X + 15;
+			}
 			// daj znaæ, ¿e gracz zosta³ dodany
 			m_playerAdded = true;
 			break;
@@ -138,8 +153,8 @@ void Server::process(Datagram::Request * request) {
 		Start start;
 		start.id1 = m_game.m_players[0]->id;
 		start.id2 = m_game.m_players[1]->id;
-		start.position1 = { 4 * FIELD_WIDTH, 5 * FIELD_HEIGHT };
-		start.position2 = { MAP_WIDTH - 5 * FIELD_WIDTH, 5 * FIELD_HEIGHT };
+		start.position1 = 4 * MAP_X + 5;
+		start.position2 = 4 * MAP_X + 15;
 		start.gamePort = m_gamePort;
 
 		for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
@@ -167,6 +182,14 @@ void Server::process(Datagram::DC * dc) {
 			std::cout << "Rozlaczono gracza o id: " << dc->playerID << std::endl;
 #endif
 		}
+		if (m_game.m_players[i] && (m_game.m_players[i]->id != dc->playerID)) {
+			for (int j = 1; j < m_game.m_players[i]->MAX_SEGMENT_COUNT; j++) {
+				delete m_game.m_players[i]->position[j];
+				m_game.m_players[i]->position[j] = nullptr;
+			}
+			m_game.m_players[i]->direction = STOP;
+			m_game.m_players[i]->score = 0;
+		}
 	}
 	// usuñ w¹tek gry, od³¹cz socket
 	if (m_playing) {
@@ -176,14 +199,15 @@ void Server::process(Datagram::DC * dc) {
 	}
 }
 
+
 /*------------------------------------------------------------------------------------*/
 //		Przetwarza pakiet typu Data.
 /*------------------------------------------------------------------------------------*/
 void Server::process(Datagram::Data * data) {
 	using namespace Datagram;
 	for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
-		if (m_game.m_players[i])  //&& (m_players[i]->id != data->playerID))
-			broadcast(data, sizeof(Data), m_game.m_players[i]->ip, m_game.m_players[i]->port);	
+		if (m_game.m_players[i] && (m_game.m_players[i]->id == data->playerID))
+			m_game.m_players[i]->direction = data->direction;
 	}
 }
 

@@ -33,9 +33,9 @@ namespace Datagram {
 		int id;
 		int id1;
 		int id2;
-		sf::Vector2i position1;
-		sf::Vector2i position2;
-		unsigned int gamePort;
+		unsigned short position1;
+		unsigned short position2;
+		unsigned short gamePort;
 
 	};
 

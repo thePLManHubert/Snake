@@ -85,6 +85,13 @@ void Game::deleteClient() {
 	m_clientPtr = nullptr;
 }
 
+unsigned short * Game::mapSnake() {
+	if (m_snakesPtr)
+		if (m_snakesPtr[0])
+			return m_snakesPtr[0]->map();
+	return nullptr;
+}
+
 /*------------------------------------------------------------------------------------*/
 //		Wy³¹cza grê.
 /*------------------------------------------------------------------------------------*/
