@@ -3,7 +3,7 @@
 
 
 Client::Client(Game * game)
-	: m_serverIP(sf::IpAddress::getLocalAddress()),
+	: m_serverIP("192.168.1.108"),
 	m_port(sf::Socket::AnyPort),
 	m_serverPort(5000),
 	m_id(-1),
@@ -23,11 +23,6 @@ Client::Client(Game * game, sf::IpAddress serverIP, unsigned short serverPort, u
 {
 	start();
 }
-
-Client::~Client() {
-	disconnect();
-}
-
 
 /*------------------------------------------------------------------------------------*/
 //		Nawi¹zuje po³¹czenie z serwerem
@@ -88,19 +83,6 @@ bool Client::start() {
 	return isConnected();
 }
 
-void Client::disconnect() {
-	if (isConnected()) {	
-		m_currentStage = Disconnected;
-		m_thread.join();
-		Datagram::DC packet;
-		packet.playerID = m_id;
-		m_socket.send(&packet, sizeof(Datagram::DC), m_serverIP, 5000);
-#ifdef DEBUG
-		std::cout << "Rozlaczono z serwerem." << std::endl;
-#endif
-	}
-}
-
 /*------------------------------------------------------------------------------------*/
 //		Wysy³a do serwera dane na odebrany z serwera port komunikacyjny
 /*------------------------------------------------------------------------------------*/
@@ -137,7 +119,7 @@ void Client::process(void * packet) {
 		break;
 
 	case Datagram::QuitPacket:
-		process((Start*)packet);
+		process((Quit*)packet);
 		break;
 
 	case Datagram::SyncPacket:

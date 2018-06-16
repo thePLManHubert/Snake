@@ -57,6 +57,26 @@ void Game::setStage(Stage stage) {
 	}
 }
 
+Client::~Client() {
+	disconnect();
+}
+
+/*------------------------------------------------------------------------------------*/
+//		Od³¹cza klienta.
+/*------------------------------------------------------------------------------------*/
+void Client::disconnect() {
+	if (isConnected()) {
+		m_currentStage = Disconnected;
+		m_thread.join();
+		Datagram::DC packet;
+		packet.playerID = m_id;
+		m_socket.send(&packet, sizeof(Datagram::DC), m_serverIP, 5000);
+#ifdef DEBUG
+		std::cout << "Rozlaczono z serwerem." << std::endl;
+#endif
+	}
+}
+
 /*------------------------------------------------------------------------------------*/
 //		Usuwa klienta gry.
 /*------------------------------------------------------------------------------------*/

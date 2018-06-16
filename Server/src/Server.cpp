@@ -46,8 +46,9 @@ void Server::listen() {
 void Server::play() {
 	sf::Clock clock;
 	Datagram::Sync sync;
+
 	while (m_playing) {
-		if (clock.getElapsedTime().asSeconds() > 0.2) {
+		if (clock.getElapsedTime().asSeconds() > 0.1) {
 			for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++)
 				broadcast(&sync, sizeof(Datagram::Sync), m_game.m_players[i]->ip, m_game.m_players[i]->port);
 			clock.restart();
@@ -125,8 +126,12 @@ void Server::process(Datagram::Request * request) {
 
 	// je¿eli wszyscy gracze do³¹czyli do gry, stwórz nowy w¹tek z gr¹
 	if (m_game.isFull() && !m_playing) {
-		m_gameSocket.bind(m_gamePort);
+		while (m_gameSocket.bind(m_gamePort) != sf::Socket::Done)
+			m_gamePort++;
 		m_gameSocket.setBlocking(false);
+#ifdef DEBUG
+		std::cout << "Przydzielono do gry port " << m_gamePort << std::endl;
+#endif
 		m_playing = true;
 
 		Start start;
@@ -149,12 +154,6 @@ void Server::process(Datagram::Request * request) {
 //		Przetwarza pakiet typu DC.
 /*------------------------------------------------------------------------------------*/
 void Server::process(Datagram::DC * dc) {
-	// usuñ w¹tek gry, od³¹cz socket
-	if (m_playing) {
-		m_gameSocket.unbind();
-		m_playing = false;
-		m_gameThread.join();
-	}
 	// wyrzuæ z gry wszystkich graczy i usuñ z listy tych, którzy siê roz³¹czyli
 	Datagram::Quit quit;
 	for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
@@ -167,6 +166,12 @@ void Server::process(Datagram::DC * dc) {
 			std::cout << "Rozlaczono gracza o id: " << dc->playerID << std::endl;
 #endif
 		}
+	}
+	// usuñ w¹tek gry, od³¹cz socket
+	if (m_playing) {
+		m_gameSocket.unbind();
+		m_playing = false;
+		m_gameThread.join();
 	}
 }
 
