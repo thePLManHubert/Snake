@@ -51,6 +51,8 @@ public:
 	void closeGame();
 	void deleteClient();
 
+	unsigned short * mapSnake();
+
 private:
 	void controlMenu(sf::Event event, sf::RenderWindow& window);
 	void controlQueue(sf::Event event, sf::RenderWindow& window);
