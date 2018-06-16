@@ -1,6 +1,50 @@
 #include "Field.h"
 
 
+Field::Field(unsigned short position, Type type)
+	: m_rotation(0),
+	m_color(sf::Color::White),
+	m_type(type)
+{
+	convertPosition(position);
+	setTexture();
+	m_sprite.setPosition((sf::Vector2f)m_position);
+}
+
+Field::Field(unsigned short position, sf::Color color, Type type)
+	: m_rotation(0),
+	m_color(color),
+	m_type(type)
+{
+	convertPosition(position);
+	setTexture();
+	m_sprite.setColor(m_color);
+	m_sprite.setPosition((sf::Vector2f)m_position);
+}
+
+Field::Field(unsigned short position, int rotation, Type type)
+	: m_rotation(rotation),
+	m_color(sf::Color::White),
+	m_type(type)
+{
+	convertPosition(position);
+	setTexture();
+	m_sprite.setPosition((sf::Vector2f)m_position);
+	setRotation(m_rotation);
+}
+
+Field::Field(unsigned short position, int rotation, sf::Color color, Type type)
+	: m_rotation(rotation),
+	m_color(color),
+	m_type(type)
+{
+	convertPosition(position);
+	setTexture();
+	m_sprite.setColor(m_color);
+	m_sprite.setPosition((sf::Vector2f)m_position);
+	setRotation(m_rotation);
+}
+
 Field::Field(sf::Vector2i position, Type type)
 	: m_position(position), 
 	m_rotation(0), 
@@ -43,6 +87,11 @@ Field::Field(sf::Vector2i position, int rotation, sf::Color color, Type type)
 	m_sprite.setColor(m_color);
 	m_sprite.setPosition((sf::Vector2f)m_position);
 	setRotation(m_rotation);
+}
+
+void Field::setPosition(unsigned short position){
+	convertPosition(position);
+	m_sprite.setPosition((sf::Vector2f)m_position);
 }
 
 void Field::setPosition(int x, int y) {
@@ -106,6 +155,11 @@ void Field::setTexture() {
 		m_sprite.setScale(sf::Vector2f(FIELD_WIDTH / 32., FIELD_HEIGHT / 32.));
 		break;
 	}
+}
+
+void Field::convertPosition(unsigned short position) {
+	m_position.x = (position % MAP_X) * FIELD_WIDTH;
+	m_position.y = (position / MAP_X) * FIELD_HEIGHT;
 }
 
 void Field::draw(sf::RenderTarget & target, sf::RenderStates states) const {

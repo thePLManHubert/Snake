@@ -21,6 +21,10 @@ protected:
 	sf::Sprite m_sprite;
 
 public:
+	Field(unsigned short position, Type type = TailBlock);
+	Field(unsigned short position, sf::Color color = sf::Color::White, Type type = TailBlock);
+	Field(unsigned short position, int rotation = 0, Type type = TailBlock);
+	Field(unsigned short position, int rotation = 0, sf::Color color = sf::Color::White, Type type = TailBlock);
 	Field(sf::Vector2i position, Type type = TailBlock);
 	Field(sf::Vector2i position, sf::Color color = sf::Color::White, Type type = TailBlock);
 	Field(sf::Vector2i position, int rotation = 0, Type type = TailBlock);
@@ -33,6 +37,7 @@ public:
 	int getRotation() const;
 	sf::Color getColor() const;
 
+	void setPosition(unsigned short position);
 	void setPosition(int x, int y);
 	void setPosition(const sf::Vector2i position);
 	void setPosition(const Field& field);
@@ -42,6 +47,7 @@ protected:
 	void setTexture();
 
 private:
+	void convertPosition(unsigned short position);
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 	
 };
