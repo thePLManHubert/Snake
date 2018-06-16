@@ -3,7 +3,7 @@
 
 
 Client::Client(Game * game)
-	: m_serverIP("192.168.1.108"),
+	: m_serverIP(sf::IpAddress::getLocalAddress()),
 	m_port(sf::Socket::AnyPort),
 	m_serverPort(5000),
 	m_id(-1),
@@ -13,10 +13,10 @@ Client::Client(Game * game)
 	start();
 }
 
-Client::Client(Game * game, sf::IpAddress serverIP, unsigned short serverPort, unsigned short socketPort) 
+Client::Client(Game * game, sf::IpAddress serverIP, unsigned short serverPort) 
 	: m_serverIP(serverIP),
 	m_serverPort(serverPort),
-	m_port(socketPort),
+	m_port(sf::Socket::AnyPort),
 	m_id(-1),
 	m_dataSize(0),
 	m_game(game)

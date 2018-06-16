@@ -17,7 +17,7 @@ void Game::controlMenu(sf::Event event, sf::RenderWindow& window) {
 			break;
 		case sf::Keyboard::M:
 			setStage(InQueue);
-			m_clientPtr = new Client(this);
+			m_clientPtr = new Client(this, this->m_gameServerIP);
 			if (!m_clientPtr->isConnected()) {
 				setStage(InMenu);
 				deleteClient();
@@ -94,7 +94,7 @@ void Game::controlMultiplayer(sf::Event event, sf::RenderWindow& window) {
 			setStage(InMenu);
 			break;
 		}
-		if(m_clientPtr)
+		if (m_clientPtr) 
 			m_clientPtr->send(&data, sizeof(Datagram::Data));
 	}
 }

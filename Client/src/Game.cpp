@@ -2,12 +2,13 @@
 #include <iostream>
 
 
-Game::Game(int maxnPlayers, int gameTime, bool collision)
+Game::Game(int maxnPlayers, sf::IpAddress ip, int gameTime, bool collision)
 	: m_stage(InMenu),
 	m_playingLength(gameTime),
 	MAX_PLAYERS(maxnPlayers),
 	m_nPlayers(0),
 	m_speed(10),
+	m_gameServerIP(ip),
 	m_collisionEnabled(collision),
 	m_snakesPtr(nullptr),
 	m_scoreboardPtr(nullptr),

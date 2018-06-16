@@ -25,6 +25,7 @@ private:
 	sf::Texture m_texture;
 	sf::Sprite m_sprite;
 	bool m_textureUpdated;
+	sf::IpAddress m_gameServerIP;
 	sf::Mutex mutex;
 
 public:
@@ -32,7 +33,7 @@ public:
 	Client * m_clientPtr;
 
 public:
-	Game(int maxnPlayers, int gameTime = 180, bool collision = true);
+	Game(int maxnPlayers, sf::IpAddress ip = sf::IpAddress::getLocalAddress() ,int gameTime = 180, bool collision = true);
 	~Game();
 
 	void loadMenu();

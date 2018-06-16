@@ -26,7 +26,7 @@ private:
 
 public:
 	Client(Game * game);
-	Client(Game * game, sf::IpAddress serverIP, unsigned short serverPort = 5000, unsigned short socketPort = sf::Socket::AnyPort);
+	Client(Game * game, sf::IpAddress serverIP, unsigned short serverPort = 5000);
 	~Client();
 
 public:
