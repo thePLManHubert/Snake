@@ -59,8 +59,10 @@ void Server::play() {
 					m_game.m_fruitHit = m_game.m_players[i]->move(m_game.m_fruitPos) || m_game.m_fruitHit;
 				}
 			}
-			if (m_game.m_fruitHit)
+			if (m_game.m_fruitHit) {
 				m_game.m_fruitPos = rand() % (MAP_X*MAP_Y);
+				m_game.m_fruitHit = false;
+			}
 
 			// sprawdŸ czy nie nast¹pi³a kolizja wê¿ów
 			for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
@@ -87,15 +89,22 @@ void Server::play() {
 					data.playerID = m_game.m_players[i]->id;
 					data.direction = m_game.m_players[i]->direction;
 					data.fruit = m_game.m_fruitPos;
-					memcpy(data.data, m_game.m_players[i]->position, sizeof(unsigned short)*(m_game.m_players[i]->score + 1));
+					data.score = m_game.m_players[i]->score;
+					for (int segment = 0; segment < m_game.m_players[i]->score; segment++) {
+						data.position[segment] = *m_game.m_players[i]->position[segment];
+					}
+					data.position[m_game.m_players[i]->score] = *m_game.m_players[i]->position[m_game.m_players[i]->score];
 					// przeœlij pozycjê wê¿ów
 					for (int j = 0; j < m_game.MAX_PLAYER_COUNT; j++) {
-						if (m_game.m_players[j])
-							broadcast(&data, sizeof(Datagram::Data), m_game.m_players[j]->ip, m_game.m_players[j]->port);
-					}
-
-					//broadcast(&sync, sizeof(Datagram::Sync), m_game.m_players[i]->ip, m_game.m_players[i]->port);
+						if (m_game.m_players[j]) // sprawdŸ send i broadcast
+							send(&data, sizeof(Datagram::Data), m_game.m_players[j]->ip, m_game.m_players[j]->port);
+					}		
 				}
+			}
+			// wyœlij sygna³ synchronizacji
+			for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
+				if (m_game.m_players[i])
+					broadcast(&sync, sizeof(Datagram::Sync), m_game.m_players[i]->ip, m_game.m_players[i]->port);
 			}
 		}
 		if (m_gameSocket.receive(m_receivedGameData, MAX_DATA_SIZE, m_receivedGameSize, m_playerAddress, m_playerPort) == sf::Socket::Done) {
@@ -124,6 +133,10 @@ void Server::process(void* packet) {
 
 	case DataPacket:
 		process((Data*)packet);
+		break;
+
+	case DirPacket:
+		process((Dir*)packet);
 		break;
 	}
 }
@@ -195,7 +208,8 @@ void Server::process(Datagram::Request * request) {
 		start.id2 = m_game.m_players[1]->id;
 		start.position1 = 4 * MAP_X + 5;
 		start.position2 = 4 * MAP_X + 15;
-		start.fruit = rand() % (MAP_X*MAP_Y);
+		m_game.m_fruitPos = rand() % (MAP_X*MAP_Y);
+		start.fruit = m_game.m_fruitPos;
 		start.gamePort = m_gamePort;
 
 		for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
@@ -243,9 +257,9 @@ void Server::process(Datagram::DC * dc) {
 
 
 /*------------------------------------------------------------------------------------*/
-//		Przetwarza pakiet typu Data.
+//		Przetwarza pakiet typu Dir.
 /*------------------------------------------------------------------------------------*/
-void Server::process(Datagram::Data * data) {
+void Server::process(Datagram::Dir * data) {
 	using namespace Datagram;
 	for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
 		if (m_game.m_players[i] && (m_game.m_players[i]->id == data->playerID))

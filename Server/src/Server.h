@@ -50,7 +50,7 @@ private:
 	void play();
 	void process(void* packet);
 	void process(Datagram::Request * request);
-	void process(Datagram::Data * data);
+	void process(Datagram::Dir * dir);
 	void process(Datagram::DC * dc);
 
 };

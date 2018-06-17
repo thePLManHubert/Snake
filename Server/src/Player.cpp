@@ -33,6 +33,7 @@ bool Player::move(unsigned short fruitPos) {
 		case UP:
 			// sprawdzenie czy g³owa nie wychodzi za mapê
 			(j == 0) ? j = MAP_Y - 1 : j--;
+			break;
 		case DOWN:
 			j = (j + 1) % MAP_Y;
 			break;
@@ -60,9 +61,16 @@ bool Player::move(unsigned short fruitPos) {
 
 void Player::eat(unsigned short fruitPos) {
 	score++;
-	position[score] = new unsigned short;
-	for (int i = score; i > 0; i--) {
-		*position[i] = *position[i - 1];
+	if (score < MAX_SEGMENT_COUNT) {
+		position[score] = new unsigned short;
+		for (int i = score; i > 0; i--) {
+			*position[i] = *position[i - 1];
+		}
+	}
+	else {
+		for (int i = MAX_SEGMENT_COUNT - 1; i > 0; i--) {
+			*position[i] = *position[i - 1];
+		}
 	}
 	*position[0] = fruitPos;
 }
