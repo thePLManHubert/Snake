@@ -37,7 +37,7 @@ void Game::updateMultiplayer() {
 		m_updateGame = false;
 		if (!m_snakesPtr) return;
 
-
+		// update czasu gry na sygna³ synchronizacji
 
 		m_scoreboardPtr->update();
 	}

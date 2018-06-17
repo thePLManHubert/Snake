@@ -113,6 +113,24 @@ void Scoreboard::updateTime() {
 }
 
 /*------------------------------------------------------------------------------------*/
+//		Odœwie¿a czas do koñca gry. (multiplayer)
+/*------------------------------------------------------------------------------------*/
+void Scoreboard::updateTime(unsigned short time) {
+
+	if (tick()) {
+		m_sec--;
+		if (m_sec < 0) {
+			m_sec = 59; m_min--;
+		}
+	}
+	std::string zero_str = "0";
+	if (m_sec > 9) zero_str = "";
+	std::string time_str = std::to_string(m_min) + ":" + zero_str + std::to_string(m_sec);
+
+	m_timeText->setString(time_str);
+}
+
+/*------------------------------------------------------------------------------------*/
 //		Zbiorcza funkcja odœwie¿aj¹ca dane o grze.
 /*------------------------------------------------------------------------------------*/
 void Scoreboard::update() {

@@ -84,6 +84,7 @@ void Server::play() {
 				}
 			}
 
+			// zbuduj odpowiedni pakiet z danymi
 			for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
 				if (m_game.m_players[i]) {
 					data.playerID = m_game.m_players[i]->id;

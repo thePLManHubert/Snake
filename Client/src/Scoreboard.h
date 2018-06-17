@@ -28,6 +28,7 @@ private:
 	bool tick();
 	void updateScore();
 	void updateTime();
+	void updateTime(unsigned short time); // multiplayer
 
 public:
 	void update();
