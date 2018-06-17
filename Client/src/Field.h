@@ -43,6 +43,8 @@ public:
 	void setPosition(const Field& field);
 	void setRotation(int rotation);
 
+	static unsigned short convertPosition(sf::Vector2f position);
+
 protected:
 	void setTexture();
 

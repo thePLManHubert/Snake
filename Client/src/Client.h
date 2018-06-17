@@ -1,10 +1,11 @@
 #pragma once
 #include "packets.h"
+#include "Game.h"
 #include <SFML/Network.hpp>
 #include <thread>
 
 
-class Game;
+//class Game;
 
 class Client {
 public:

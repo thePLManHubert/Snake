@@ -134,7 +134,7 @@ sf::Vector2i Field::getPosition() const {
 }
 
 void Field::setTexture() {
-	m_texture.loadFromFile("resources/TransparentWhite.png");
+	m_texture.loadFromFile("resources/TransparentWhiteNoOrientation.png");
 	m_sprite.setTexture(m_texture);
 
 	switch(m_type) {
@@ -160,6 +160,12 @@ void Field::setTexture() {
 void Field::convertPosition(unsigned short position) {
 	m_position.x = (position % MAP_X) * FIELD_WIDTH;
 	m_position.y = (position / MAP_X) * FIELD_HEIGHT;
+}
+
+unsigned short Field::convertPosition(sf::Vector2f position) {
+	unsigned short pos;
+	pos = position.y / FIELD_HEIGHT * MAP_X + position.x / FIELD_WIDTH;
+	return pos;
 }
 
 void Field::draw(sf::RenderTarget & target, sf::RenderStates states) const {

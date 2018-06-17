@@ -118,6 +118,7 @@ void Game::startSingleplayer() {
 /*------------------------------------------------------------------------------------*/
 void Game::startMultiplayer(Datagram::Start * start) {
 	m_snakesPtr = new Snake*[MAX_PLAYERS];
+
 	if (start->id == start->id1) {
 		m_snakesPtr[0] = new Snake(start->position1, start->id1, sf::Color(15, 150, 0, 200), 20, false);
 		m_snakesPtr[1] = new Snake(start->position2, start->id2, sf::Color(240, 0, 0, 200), 20, false);
@@ -130,7 +131,7 @@ void Game::startMultiplayer(Datagram::Start * start) {
 	m_nPlayers = 2;
 	m_scoreboardPtr = new Scoreboard(m_snakesPtr, m_nPlayers, &m_clock, m_playingLength);
 
-	m_fruitPtr = new Fruit(m_fruitPtr->preparePosition(*this));
+	m_fruitPtr = new Fruit(start->fruit);
 	m_clock.restart();
 }
 
@@ -138,9 +139,12 @@ void Game::startMultiplayer(Datagram::Start * start) {
 //		Przyjmuje dane z serwera i stosuje je do gry.
 /*------------------------------------------------------------------------------------*/
 void Game::approveChanges(Datagram::Data * data) {
+	m_fruitPtr->setPosition(data->fruit);
 	for (int i = 0; i < MAX_PLAYERS; i++) {
-		if(m_snakesPtr[i]->m_id == data->playerID)
-			m_snakesPtr[i]->setDirection((Snake::Direction)data->direction);
+		if (m_snakesPtr[i]->m_id == data->playerID) {
+			m_snakesPtr[i]->m_fruits = data->score;
+			m_snakesPtr[i]->move(data);
+		}
 	}
 }
 

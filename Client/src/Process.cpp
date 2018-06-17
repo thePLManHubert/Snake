@@ -6,8 +6,23 @@
 /*------------------------------------------------------------------------------------*/
 //		Funkcja s³u¿¹ca do przetwarzania danych.
 /*------------------------------------------------------------------------------------*/
-void Client::process(Datagram::Data * data) {
-	std::cout << "id: " << data->playerID << " " << data->direction << std::endl;
+void Client::process(Datagram::Data * data) {	
+#ifdef DEBUG
+	if (data->playerID == this->getID()) {
+		unsigned short limit;
+		std::cout << "---------------------------------------------"
+			<< std::endl << "id: " << data->playerID << " " << data->direction << std::endl;
+		std::cout << "fruit: " << data->fruit << std::endl;
+
+		limit = (data->score < 20) ? data->score : 19;
+		for (int i = 0; i < limit; i++) {
+			std::cout << data->position[i] << " | ";
+		}
+		std::cout << data->position[limit];
+		std::cout << std::endl;
+	}
+#endif
+
 	m_game->approveChanges(data);
 }
 

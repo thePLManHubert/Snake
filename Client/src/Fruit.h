@@ -7,6 +7,7 @@ class Game;
 class Fruit : public Field {
 public:
 	Fruit(sf::Vector2i position);
+	Fruit(unsigned short position);
 
 public:
 	sf::Vector2i preparePosition(const Snake& snake);

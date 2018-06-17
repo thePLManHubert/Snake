@@ -18,8 +18,8 @@ int main()
 	window.setTitle("Snake");
 
 	// create game
-	//Game game(2);
-	Game game(2, "192.168.1.108");
+	Game game(2);
+	//Game game(2, "192.168.1.107");
 
 #ifdef DEBUG
 	window.setVerticalSyncEnabled(true);
