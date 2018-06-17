@@ -87,12 +87,16 @@ unsigned short * Snake::map() {
 
 	if (m_body.tail) {
 		Body::Segment * temp = m_body.tail;
-		for (int i = 2; temp->next; temp = temp->next, i++) { // reszta cia³a wê¿a
+		for (int i = m_fruits + 1; temp->next; temp = temp->next, i--) { // reszta cia³a wê¿a
 			m_mappedPtr[i] = temp->getPosition().y / FIELD_HEIGHT * MAP_X + temp->getPosition().x / FIELD_WIDTH;
 		}
-		m_mappedPtr[m_fruits + 1] = temp->getPosition().y / FIELD_HEIGHT * MAP_X + temp->getPosition().x / FIELD_WIDTH;
+		m_mappedPtr[2] = temp->getPosition().y / FIELD_HEIGHT * MAP_X + temp->getPosition().x / FIELD_WIDTH;
 	}
 	return m_mappedPtr;
+}
+
+void Snake::unmap()
+{
 }
 
 /*------------------------------------------------------------------------------------*/
@@ -133,9 +137,38 @@ void Snake::setPosition(sf::Vector2i position) {
 }
 
 /*------------------------------------------------------------------------------------*/
+//		Powoduje poruszanie siê wê¿a w wybranym kierunku. (multiplayer)
+/*------------------------------------------------------------------------------------*/
+void Snake::move(Datagram::Data * data) {
+
+	unsigned short last;
+	last = (data->score < 20) ? data->score : 19;
+
+	m_head.setPosition(data->position[0]); // mo¿na to poprawiæ
+	if (data->grow) {
+		if (!m_body.tail)
+			m_body.tail = new Body::Segment(data->position[1], 0, m_head.getColor(), Field::TailBlock);
+		else {
+			Body::Segment * segment = m_body.tail;
+			while (segment->next) segment = segment->next;
+			segment->next = new Body::Segment(data->position[1], m_head.getRotation(), m_head.getColor());
+		}
+	}
+	else {
+		if (m_body.tail) {
+			Body::Segment * segment = m_body.tail;
+			for (int i = last; i > 0; i--) {
+				segment->setPosition(data->position[i]);
+				segment = segment->next;
+			}
+		}
+	}
+}
+
+/*------------------------------------------------------------------------------------*/
 //		Powoduje poruszanie siê wê¿a w wybranym kierunku.
 /*------------------------------------------------------------------------------------*/
-bool Snake::move(Fruit& fruit) {
+bool Snake::move(Fruit & fruit) {
 	if (m_direction == FREEZE) return false;
 
 	bool fruitHit = false;
@@ -154,35 +187,6 @@ bool Snake::move(Fruit& fruit) {
 
 	m_wait = false;
 	return fruitHit;
-}
-
-/*------------------------------------------------------------------------------------*/
-//		Powoduje poruszanie siê wê¿a w grze singleplayer.
-/*------------------------------------------------------------------------------------*/
-void Snake::moveSingleplayer(Fruit& fruit) {
-	if (m_collisionEnabled) 
-		if (m_direction == FREEZE) return;
-
-	m_head.move(m_direction);
-
-	if (m_direction != STOP) {
-		if (fruit.getPosition() == m_head.getPosition()) {
-			if (m_fruits < m_limit - 1) m_body.grow(m_head);
-			else m_body.follow(m_head);
-			fruit.setPosition(fruit.preparePosition(*this));
-			m_fruits++;
-		}
-		else
-			m_body.follow(m_head);
-	}
-	if (m_collisionEnabled) {
-		if (selfCollision()) {
-			setDirection(FREEZE);
-			return;
-		}
-	}
-
-	m_wait = false;
 }
 
 /*------------------------------------------------------------------------------------*/
@@ -350,6 +354,16 @@ void Snake::Body::deleteAllSegments() {
 	}
 	delete temp;
 	tail = nullptr;
+}
+
+void Snake::Body::follow(const Head& head, Datagram::Data data) {
+
+}
+
+void Snake::Body::grow(const Head& head, Datagram::Data data) {
+	if (!tail) {
+		
+	}
 }
 
 /*------------------------------------------------------------------------------------*/

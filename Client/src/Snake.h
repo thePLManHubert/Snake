@@ -1,6 +1,7 @@
 #pragma once
 #include "Field.h"
 #include "Fruit.h"
+#include "packets.h"
 #include <SFML/Graphics.hpp>
 
 extern const int MAP_WIDTH;
@@ -48,6 +49,9 @@ public:
 		void grow(const Head& head);
 		void deleteAllSegments();
 
+		// multiplayer
+		void follow(const Head& head, Datagram::Data data);
+		void grow(const Head& head, Datagram::Data data);
 	};
 
 public:
@@ -72,13 +76,14 @@ public:
 	void setPosition(sf::Vector2i position);
 
 	bool move(Fruit& fruit);
-	void moveSingleplayer(Fruit& fruit);
 	bool moveAutomatically(Fruit& fruit);
 
 	bool comparePosition(Field* segment);
 
 	// metody multiplayera
 	unsigned short * map();
+	void move(Datagram::Data * data);
+	void unmap();
 
 
 private:
