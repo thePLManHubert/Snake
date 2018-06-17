@@ -14,6 +14,7 @@ struct Player {
 	Direction direction;
 	unsigned short score;
 	unsigned short * position[MAX_SEGMENT_COUNT] = {nullptr};
+	bool grow;
 	bool canMove;
 	
 

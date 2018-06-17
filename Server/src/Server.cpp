@@ -90,6 +90,7 @@ void Server::play() {
 					data.direction = m_game.m_players[i]->direction;
 					data.fruit = m_game.m_fruitPos;
 					data.score = m_game.m_players[i]->score;
+					data.grow = m_game.m_players[i]->grow;
 
 					if (data.score < m_game.m_players[i]->MAX_SEGMENT_COUNT)
 						limit = data.score;
@@ -102,7 +103,8 @@ void Server::play() {
 					for (int j = 0; j < m_game.MAX_PLAYER_COUNT; j++) {
 						if (m_game.m_players[j]) // sprawdŸ send i broadcast
 							send(&data, sizeof(Datagram::Data), m_game.m_players[j]->ip, m_game.m_players[j]->port);
-					}		
+					}	
+					m_game.m_players[i]->grow = false;
 				}
 			}
 			// wyœlij sygna³ synchronizacji

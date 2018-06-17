@@ -7,6 +7,7 @@ Player::Player(sf::IpAddress ip, unsigned short port, int id)
 	id(id),
 	direction(STOP),
 	score(0),
+	grow(false),
 	canMove(true)
 {
 }
@@ -65,6 +66,7 @@ void Player::eat(unsigned short fruitPos) {
 	score++;
 	if (score < MAX_SEGMENT_COUNT) {
 		limit = score;
+		grow = true;
 		position[score] = new unsigned short;
 	}
 	else limit = MAX_SEGMENT_COUNT - 1;

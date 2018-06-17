@@ -70,7 +70,8 @@ namespace Datagram {
 		PlayerID playerID;
 		Direction direction;
 		unsigned short fruit;
-		unsigned short score;
+		unsigned short score = 0;
+		bool grow = false;
 		unsigned short position[20];
 
 	};
