@@ -48,6 +48,7 @@ void Server::play() {
 	sf::Clock clock;
 	Datagram::Sync sync;
 	Datagram::Data data;
+	unsigned short limit;
 
 	while (m_playing) {
 		if (clock.getElapsedTime().asSeconds() > 0.1) {
@@ -69,15 +70,14 @@ void Server::play() {
 				for (int j = 0; j < m_game.MAX_PLAYER_COUNT; j++) {
 					if (m_game.m_players[i] && m_game.m_players[j]) {
 						if (m_game.m_players[i] != m_game.m_players[j]) {
-							for (int segment = 0; segment < m_game.m_players[j]->score; segment++) {
-								if (m_game.m_players[i]->position[0] == m_game.m_players[j]->position[segment]) {
+							if (m_game.m_players[j]->score < m_game.m_players[j]->MAX_SEGMENT_COUNT)
+								limit = m_game.m_players[j]->score;
+							else limit = m_game.m_players[j]->MAX_SEGMENT_COUNT - 1;
+							for (int segment = 0; segment <= limit; segment++) {
+								if (*m_game.m_players[i]->position[0] == *m_game.m_players[j]->position[segment]) {
 									m_game.m_players[i]->direction = FREEZE;
 									m_game.m_players[i]->canMove = false;
 								}
-							}
-							if (m_game.m_players[i]->position[0] == m_game.m_players[j]->position[m_game.m_players[j]->score]) {
-								m_game.m_players[i]->direction = FREEZE;
-								m_game.m_players[i]->canMove = false;
 							}
 						}
 					}
@@ -90,10 +90,14 @@ void Server::play() {
 					data.direction = m_game.m_players[i]->direction;
 					data.fruit = m_game.m_fruitPos;
 					data.score = m_game.m_players[i]->score;
-					for (int segment = 0; segment < m_game.m_players[i]->score; segment++) {
+
+					if (data.score < m_game.m_players[i]->MAX_SEGMENT_COUNT)
+						limit = data.score;
+					else limit = m_game.m_players[i]->MAX_SEGMENT_COUNT - 1;
+
+					for (int segment = 0; segment <= limit; segment++) {
 						data.position[segment] = *m_game.m_players[i]->position[segment];
 					}
-					data.position[m_game.m_players[i]->score] = *m_game.m_players[i]->position[m_game.m_players[i]->score];
 					// przeœlij pozycjê wê¿ów
 					for (int j = 0; j < m_game.MAX_PLAYER_COUNT; j++) {
 						if (m_game.m_players[j]) // sprawdŸ send i broadcast

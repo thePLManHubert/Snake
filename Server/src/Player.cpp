@@ -60,23 +60,30 @@ bool Player::move(unsigned short fruitPos) {
 }
 
 void Player::eat(unsigned short fruitPos) {
+	unsigned short limit;
+
 	score++;
 	if (score < MAX_SEGMENT_COUNT) {
+		limit = score;
 		position[score] = new unsigned short;
-		for (int i = score; i > 0; i--) {
-			*position[i] = *position[i - 1];
-		}
 	}
-	else {
-		for (int i = MAX_SEGMENT_COUNT - 1; i > 0; i--) {
-			*position[i] = *position[i - 1];
-		}
+	else limit = MAX_SEGMENT_COUNT - 1;
+
+	for (int i = limit; i > 0; i--) {
+		*position[i] = *position[i - 1];
 	}
+
 	*position[0] = fruitPos;
 }
 
 void Player::follow(unsigned short newPos) {
-	for (int i = score; i > 0; i--) {
+	unsigned short limit;
+
+	if (score < MAX_SEGMENT_COUNT)
+		limit = score;
+	else limit = MAX_SEGMENT_COUNT - 1;
+
+	for (int i = limit; i > 0; i--) {
 		*position[i] = *position[i - 1];
 	}
 	*position[0] = newPos;
