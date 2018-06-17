@@ -10,6 +10,7 @@ void Server::start() {
 	if (m_listeningSocket.bind(m_listeningPort) != sf::Socket::Done) {
 		return;
 	}
+	srand(time(NULL));
 	m_listeningSocket.setBlocking(false);
 	m_listening = true;
 	m_listenThread = std::thread(&Server::listen, this);
@@ -50,13 +51,52 @@ void Server::play() {
 
 	while (m_playing) {
 		if (clock.getElapsedTime().asSeconds() > 0.1) {
-			// odœwie¿ pozycjê wê¿ów
-			for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++)
-				if (m_game.m_players[i]) {
-					// przeœlij pozycjê wê¿ów
-					broadcast(&sync, sizeof(Datagram::Sync), m_game.m_players[i]->ip, m_game.m_players[i]->port);
-				}
 			clock.restart();
+
+			// odœwie¿ pozycjê wê¿ów
+			for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
+				if (m_game.m_players[i]) {
+					m_game.m_fruitHit = m_game.m_players[i]->move(m_game.m_fruitPos) || m_game.m_fruitHit;
+				}
+			}
+			if (m_game.m_fruitHit)
+				m_game.m_fruitPos = rand() % (MAP_X*MAP_Y);
+
+			// sprawdŸ czy nie nast¹pi³a kolizja wê¿ów
+			for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
+				for (int j = 0; j < m_game.MAX_PLAYER_COUNT; j++) {
+					if (m_game.m_players[i] && m_game.m_players[j]) {
+						if (m_game.m_players[i] != m_game.m_players[j]) {
+							for (int segment = 0; segment < m_game.m_players[j]->score; segment++) {
+								if (m_game.m_players[i]->position[0] == m_game.m_players[j]->position[segment]) {
+									m_game.m_players[i]->direction = FREEZE;
+									m_game.m_players[i]->canMove = false;
+								}
+							}
+							if (m_game.m_players[i]->position[0] == m_game.m_players[j]->position[m_game.m_players[j]->score]) {
+								m_game.m_players[i]->direction = FREEZE;
+								m_game.m_players[i]->canMove = false;
+							}
+						}
+					}
+				}
+			}
+
+			for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
+				if (m_game.m_players[i]) {
+					data.playerID = m_game.m_players[i]->id;
+					data.direction = m_game.m_players[i]->direction;
+					data.fruit = m_game.m_fruitPos;
+					memcpy(data.data, m_game.m_players[i]->position, sizeof(unsigned short)*(m_game.m_players[i]->score + 1));
+					// przeœlij pozycjê wê¿ów
+					for (int j = 0; j < m_game.MAX_PLAYER_COUNT; j++) {
+						if (m_game.m_players[j])
+							broadcast(&data, sizeof(Datagram::Data), m_game.m_players[j]->ip, m_game.m_players[j]->port);
+					}
+
+					//broadcast(&sync, sizeof(Datagram::Sync), m_game.m_players[i]->ip, m_game.m_players[i]->port);
+				}
+			}
 		}
 		if (m_gameSocket.receive(m_receivedGameData, MAX_DATA_SIZE, m_receivedGameSize, m_playerAddress, m_playerPort) == sf::Socket::Done) {
 			process(m_receivedGameData);
@@ -155,6 +195,7 @@ void Server::process(Datagram::Request * request) {
 		start.id2 = m_game.m_players[1]->id;
 		start.position1 = 4 * MAP_X + 5;
 		start.position2 = 4 * MAP_X + 15;
+		start.fruit = rand() % (MAP_X*MAP_Y);
 		start.gamePort = m_gamePort;
 
 		for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
@@ -189,6 +230,7 @@ void Server::process(Datagram::DC * dc) {
 			}
 			m_game.m_players[i]->direction = STOP;
 			m_game.m_players[i]->score = 0;
+			m_game.m_players[i]->canMove = true;
 		}
 	}
 	// usuñ w¹tek gry, od³¹cz socket

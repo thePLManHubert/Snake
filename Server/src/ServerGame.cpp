@@ -2,7 +2,8 @@
 
 
 ServerGame::ServerGame() 
-	: m_nPlayers(0)
+	: m_nPlayers(0),
+	m_fruitHit(false)
 {
 }
 
