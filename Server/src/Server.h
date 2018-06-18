@@ -27,7 +27,8 @@ private:
 	unsigned short m_senderPort;
 	bool m_playerAdded;
 	ServerGame m_game;
-
+	bool m_checkCollision;
+	int m_tickNoCollision;
 
 public:
 	Server(unsigned short port, unsigned short gamePort) :
@@ -35,6 +36,8 @@ public:
 		m_gamePort(gamePort),
 		m_listening(false),
 		m_playing(false),
+		m_checkCollision(true),
+		m_tickNoCollision(10),
 		m_playerAdded(false),
 		m_game(ServerGame())
 	{

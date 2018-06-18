@@ -66,23 +66,27 @@ void Server::play() {
 			}
 
 			// sprawdŸ czy nie nast¹pi³a kolizja wê¿ów
-			for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
-				for (int j = 0; j < m_game.MAX_PLAYER_COUNT; j++) {
-					if (m_game.m_players[i] && m_game.m_players[j]) {
-						if (m_game.m_players[i] != m_game.m_players[j]) {
-							if (m_game.m_players[j]->score < m_game.m_players[j]->MAX_SEGMENT_COUNT)
-								limit = m_game.m_players[j]->score;
-							else limit = m_game.m_players[j]->MAX_SEGMENT_COUNT - 1;
-							for (int segment = 0; segment <= limit; segment++) {
-								if (*m_game.m_players[i]->position[0] == *m_game.m_players[j]->position[segment]) {
-									m_game.m_players[i]->direction = FREEZE;
-									m_game.m_players[i]->canMove = false;
+			if (m_tickNoCollision > 9) m_checkCollision = true;
+			if (m_checkCollision) {
+				for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
+					for (int j = 0; j < m_game.MAX_PLAYER_COUNT; j++) {
+						if (m_game.m_players[i] && m_game.m_players[j]) {
+							if (m_game.m_players[i] != m_game.m_players[j]) {
+								if (m_game.m_players[j]->score < m_game.m_players[j]->MAX_SEGMENT_COUNT)
+									limit = m_game.m_players[j]->score;
+								else limit = m_game.m_players[j]->MAX_SEGMENT_COUNT - 1;
+								for (int segment = 0; segment <= limit; segment++) {
+									if (*m_game.m_players[i]->position[0] == *m_game.m_players[j]->position[segment]) {
+										m_game.m_players[i]->direction = FREEZE;
+										m_game.m_players[i]->canMove = false;
+									}
 								}
 							}
 						}
 					}
 				}
 			}
+			else m_tickNoCollision++;
 
 			// zbuduj odpowiedni pakiet z danymi
 			for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
@@ -295,6 +299,8 @@ void Server::process(Datagram::Reset * reset) {
 			}
 		}
 	}
+	m_checkCollision = false;
+	m_tickNoCollision = 0;
 }
 
 /*------------------------------------------------------------------------------------*/
