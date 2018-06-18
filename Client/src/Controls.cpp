@@ -60,6 +60,7 @@ void Game::controlQueue(sf::Event event, sf::RenderWindow& window) {
 
 void Game::controlMultiplayer(sf::Event event, sf::RenderWindow& window) {
 	Datagram::Dir dir;
+	Datagram::Reset reset;
 	dir.playerID = m_clientPtr->getID();
 
 	switch (event.type)
@@ -92,6 +93,10 @@ void Game::controlMultiplayer(sf::Event event, sf::RenderWindow& window) {
 		case sf::Keyboard::Space:
 			dir.direction = (Datagram::Direction)Snake::Direction::STOP;
 			m_clientPtr->send(&dir, sizeof(Datagram::Dir));
+			break;
+		case sf::Keyboard::R:
+			reset.playerID = m_snakesPtr[0]->m_id;
+			m_clientPtr->send(&reset, sizeof(Datagram::Reset));
 			break;
 		case sf::Keyboard::Escape:
 			if (m_clientPtr)

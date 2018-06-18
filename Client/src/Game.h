@@ -48,6 +48,8 @@ public:
 	void resetSingleplayer();
 	void resetPlayerStatus();
 
+	void resetPlayerStatus(int id);
+
 	void closeGame();
 	void deleteClient();
 

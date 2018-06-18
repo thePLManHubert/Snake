@@ -125,6 +125,10 @@ void Client::process(void * packet) {
 	case Datagram::SyncPacket:
 		process((Sync*)packet);
 		break;
+	
+	case Datagram::ResetPacket:
+		process((Reset*)packet);
+		break;
 	}
 }
 

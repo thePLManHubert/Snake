@@ -44,6 +44,7 @@ private:
 	void process(Datagram::Start * start);
 	void process(Datagram::Quit * quit);
 	void process(Datagram::Sync * sync);
+	void process(Datagram::Reset * reset);
 
 public: // getters
 	bool isConnected() const;

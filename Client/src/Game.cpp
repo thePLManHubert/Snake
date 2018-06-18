@@ -172,6 +172,20 @@ void Game::resetPlayerStatus() {
 }
 
 /*------------------------------------------------------------------------------------*/
+//		Resetuje dane o graczu w grze multiplayer.
+/*------------------------------------------------------------------------------------*/
+void Game::resetPlayerStatus(int id) {
+	
+	for (int i = 0; i < MAX_PLAYERS; i++) {
+		if (m_snakesPtr[i]->m_id == id){
+			m_snakesPtr[i]->m_body.deleteAllSegments();
+			m_snakesPtr[i]->m_fruits = 0;
+			m_snakesPtr[i]->m_direction = Snake::Direction::STOP;
+		}
+	}
+}
+
+/*------------------------------------------------------------------------------------*/
 //		Sprawdza czy nast¹pi³a kolizja dwóch wê¿ów.
 /*------------------------------------------------------------------------------------*/
 void Game::detectCollision() {

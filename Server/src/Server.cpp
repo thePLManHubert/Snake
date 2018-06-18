@@ -145,6 +145,10 @@ void Server::process(void* packet) {
 	case DirPacket:
 		process((Dir*)packet);
 		break;
+
+	case ResetPacket:
+		process((Reset*)packet);
+		break;
 	}
 }
 
@@ -267,10 +271,29 @@ void Server::process(Datagram::DC * dc) {
 //		Przetwarza pakiet typu Dir.
 /*------------------------------------------------------------------------------------*/
 void Server::process(Datagram::Dir * data) {
-	using namespace Datagram;
 	for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
-		if (m_game.m_players[i] && (m_game.m_players[i]->id == data->playerID))
+		if (m_game.m_players[i] && (m_game.m_players[i]->id == data->playerID)) {
 			m_game.m_players[i]->direction = data->direction;
+		}
+	}
+}
+
+void Server::process(Datagram::Reset * reset) {
+	for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
+		if (m_game.m_players[i] && (m_game.m_players[i]->id == reset->playerID)) {
+			m_game.m_players[i]->direction = STOP;
+			m_game.m_players[i]->canMove = true;
+			m_game.m_players[i]->score = 0;
+			for (int j = 1; j < m_game.MAX_PLAYER_COUNT; j++) {
+				if (m_game.m_players[i]->position[j]) {
+					delete m_game.m_players[i]->position[j];
+					m_game.m_players[i]->position[j] = nullptr;
+				}
+			}
+			for (int j = 0; j < m_game.MAX_PLAYER_COUNT; j++) {
+				broadcast(reset, sizeof(Datagram::Reset), m_game.m_players[j]->ip, m_game.m_players[j]->port);
+			}
+		}
 	}
 }
 

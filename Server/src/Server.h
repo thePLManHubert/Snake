@@ -51,6 +51,7 @@ private:
 	void process(void* packet);
 	void process(Datagram::Request * request);
 	void process(Datagram::Dir * dir);
+	void process(Datagram::Reset * reset);
 	void process(Datagram::DC * dc);
 
 };

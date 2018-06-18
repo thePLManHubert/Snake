@@ -50,6 +50,10 @@ void Client::process(Datagram::Sync * sync) {
 	m_game->m_updateGame = true;
 }
 
+void Client::process(Datagram::Reset * reset){
+	m_game->resetPlayerStatus(reset->playerID);
+}
+
 /*------------------------------------------------------------------------------------*/
 //		Ustawia grê w odpowiednie stan.
 /*------------------------------------------------------------------------------------*/
