@@ -45,13 +45,14 @@ void Server::listen() {
 //		Nas³uchuje zg³oszeñ od pod³¹czonych klientów.
 /*------------------------------------------------------------------------------------*/
 void Server::play() {
-	sf::Clock gameClock, dataClock, syncClock;
+	sf::Clock clock;
+	Datagram::Sync sync;
 	Datagram::Data data;
 	unsigned short limit;
 
 	while (m_playing) {
-		if (gameClock.getElapsedTime().asSeconds() > 0.1) {
-			gameClock.restart();
+		if (clock.getElapsedTime().asSeconds() > 0.1) {
+			clock.restart();
 
 			// odœwie¿ pozycjê wê¿ów
 			for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
@@ -82,71 +83,40 @@ void Server::play() {
 					}
 				}
 			}
-		}
 
-		if (dataClock.getElapsedTime().asSeconds() > 0.1) {
-			dataClock.restart();
+			// zbuduj odpowiedni pakiet z danymi
 			for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
-				makeDataPacket(data, i);
-				sendData(&data);
+				if (m_game.m_players[i]) {
+					data.playerID = m_game.m_players[i]->id;
+					data.direction = m_game.m_players[i]->direction;
+					data.fruit = m_game.m_fruitPos;
+					data.score = m_game.m_players[i]->score;
+					data.grow = m_game.m_players[i]->grow;
+
+					if (data.score < m_game.m_players[i]->MAX_SEGMENT_COUNT)
+						limit = data.score;
+					else limit = m_game.m_players[i]->MAX_SEGMENT_COUNT - 1;
+
+					for (int segment = 0; segment <= limit; segment++) {
+						data.position[segment] = *m_game.m_players[i]->position[segment];
+					}
+					// przeœlij pozycjê wê¿ów
+					for (int j = 0; j < m_game.MAX_PLAYER_COUNT; j++) {
+						if (m_game.m_players[j]) // sprawdŸ send i broadcast
+							send(&data, sizeof(Datagram::Data), m_game.m_players[j]->ip, m_game.m_players[j]->port);
+					}	
+					m_game.m_players[i]->grow = false;
+				}
+			}
+			// wyœlij sygna³ synchronizacji
+			for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
+				if (m_game.m_players[i])
+					broadcast(&sync, sizeof(Datagram::Sync), m_game.m_players[i]->ip, m_game.m_players[i]->port);
 			}
 		}
-
-		if (syncClock.getElapsedTime().asSeconds() > 0.1) {
-			syncClock.restart();
-			snakeCancelGrow();
-			sendSync();
-#ifdef DEBUG
-			std::cout << "|";
-#endif
-		}
-
-
 		if (m_gameSocket.receive(m_receivedGameData, MAX_DATA_SIZE, m_receivedGameSize, m_playerAddress, m_playerPort) == sf::Socket::Done) {
 			process(m_receivedGameData);
 		}
-	}
-}
-
-void Server::makeDataPacket(Datagram::Data & data, int nPlayer) {
-	unsigned short limit;
-
-	if (m_game.m_players[nPlayer]) {
-		data.playerID = m_game.m_players[nPlayer]->id;
-		data.direction = m_game.m_players[nPlayer]->direction;
-		data.fruit = m_game.m_fruitPos;
-		data.score = m_game.m_players[nPlayer]->score;
-		data.grow = m_game.m_players[nPlayer]->grow;
-
-		if (data.score < m_game.m_players[nPlayer]->MAX_SEGMENT_COUNT)
-			limit = data.score;
-		else limit = m_game.m_players[nPlayer]->MAX_SEGMENT_COUNT - 1;
-
-		for (int segment = 0; segment <= limit; segment++) {
-			data.position[segment] = *m_game.m_players[nPlayer]->position[segment];
-		}
-	}
-}
-
-void Server::sendData(Datagram::Data * data) {
-	for (int j = 0; j < m_game.MAX_PLAYER_COUNT; j++) {
-		if (m_game.m_players[j]) // sprawdŸ send i broadcast
-			send(data, sizeof(Datagram::Data), m_game.m_players[j]->ip, m_game.m_players[j]->port);
-	}
-}
-
-void Server::snakeCancelGrow() {
-	for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
-		if (m_game.m_players[i])
-			m_game.m_players[i]->grow = false;
-	}
-}
-
-void Server::sendSync() {
-	Datagram::Sync sync;
-	for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
-		if (m_game.m_players[i])
-			broadcast(&sync, sizeof(Datagram::Sync), m_game.m_players[i]->ip, m_game.m_players[i]->port);
 	}
 }
 
