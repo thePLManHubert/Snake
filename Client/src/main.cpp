@@ -7,6 +7,7 @@
 
 
 extern const int SCOREBOARD_HEIGHT;
+sf::Mutex mutex;
 
 int main()
 {
@@ -46,10 +47,12 @@ int main()
 		game.update();
 
 		window.clear(sf::Color(240, 240, 240));
-
+		
+		mutex.lock();
 		window.draw(game);
 
 		window.display();
+		mutex.unlock();
 	}
 
 	

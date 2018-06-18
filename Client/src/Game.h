@@ -26,7 +26,6 @@ private:
 	sf::Sprite m_sprite;
 	bool m_textureUpdated;
 	sf::IpAddress m_gameServerIP;
-	sf::Mutex mutex;
 
 public:
 	bool m_updateGame;

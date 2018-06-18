@@ -2,6 +2,8 @@
 #include <iostream>
 
 
+extern sf::Mutex mutex;
+
 Game::Game(int maxnPlayers, sf::IpAddress ip, int gameTime, bool collision)
 	: m_stage(InMenu),
 	m_playingLength(gameTime),
@@ -175,7 +177,7 @@ void Game::resetPlayerStatus() {
 //		Resetuje dane o graczu w grze multiplayer.
 /*------------------------------------------------------------------------------------*/
 void Game::resetPlayerStatus(int id) {
-	
+	mutex.lock();
 	for (int i = 0; i < MAX_PLAYERS; i++) {
 		if (m_snakesPtr[i]->m_id == id){
 			m_snakesPtr[i]->m_body.deleteAllSegments();
@@ -183,6 +185,7 @@ void Game::resetPlayerStatus(int id) {
 			m_snakesPtr[i]->m_direction = Snake::Direction::STOP;
 		}
 	}
+	mutex.unlock();
 }
 
 /*------------------------------------------------------------------------------------*/
