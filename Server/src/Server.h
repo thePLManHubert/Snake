@@ -53,4 +53,9 @@ private:
 	void process(Datagram::Dir * dir);
 	void process(Datagram::DC * dc);
 
+	void makeDataPacket(Datagram::Data& data, int nPlayer);
+	void sendData(Datagram::Data * data);
+	void snakeCancelGrow();
+	void sendSync();
+
 };
