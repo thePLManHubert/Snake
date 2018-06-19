@@ -8,3 +8,6 @@ const int MAP_Y = 15;
 
 const int MAP_WIDTH = FIELD_WIDTH * MAP_X;
 const int MAP_HEIGHT = FIELD_HEIGHT * MAP_Y;
+
+// czas gry
+const int TIME = 10;
