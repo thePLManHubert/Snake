@@ -108,6 +108,37 @@ void Game::controlMultiplayer(sf::Event event, sf::RenderWindow& window) {
 	}
 }
 
+void Game::controlEnd(sf::Event event, sf::RenderWindow & window) {
+	switch (event.type)
+	{
+	case sf::Event::Closed:
+		window.close();
+		if (m_clientPtr)
+			deleteClient();
+		break;
+
+	case sf::Event::KeyPressed:
+		switch (event.key.code)
+		{
+		case sf::Keyboard::Enter:
+			setStage(InQueue);
+			m_clientPtr = new Client(this, this->m_gameServerIP);
+			if (!m_clientPtr->isConnected()) {
+				setStage(InMenu);
+				deleteClient();
+			}
+			break;
+		case sf::Keyboard::Escape:
+			setStage(InMenu);
+			if (m_clientPtr) {
+				deleteClient();
+			}
+			break;
+		}
+		break;
+	}
+}
+
 /*------------------------------------------------------------------------------------------*/
 
 void Game::controlSingleplayer(sf::Event event, sf::RenderWindow& window) {

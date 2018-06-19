@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "Snake.h"
 #include "Fruit.h"
+#include "Client.h"
 #include "Scoreboard.h"
 #include <SFML/Graphics.hpp>
 #include <iostream>
@@ -21,6 +22,8 @@ int main()
 	// create game
 	//Game game(2);
 	Game game(2, "192.168.0.5");
+
+	sf::Clock clock;
 
 #ifdef DEBUG
 	window.setVerticalSyncEnabled(true);
@@ -53,8 +56,15 @@ int main()
 
 		window.display();
 		mutex.unlock();
-	}
 
+		if (game.m_clientPtr) {
+			if (!game.m_clientPtr->isConnected())
+				if (game.m_clientPtr->getThread().joinable()) {
+					game.m_clientPtr->getThread().join();
+					game.setStage(Game::End);
+				}
+		}
+	}
 	
 	return 0;
 }

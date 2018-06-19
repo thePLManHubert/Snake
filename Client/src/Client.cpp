@@ -129,6 +129,10 @@ void Client::process(void * packet) {
 	case Datagram::ResetPacket:
 		process((Reset*)packet);
 		break;
+
+	case Datagram::EndGamePacket:
+		process((EndGame*)packet);
+		break;
 	}
 }
 
@@ -152,6 +156,10 @@ Client::Stage Client::getCurrentStage() const {
 /*------------------------------------------------------------------------------------*/
 int Client::getID() const {
 	return m_id;
+}
+
+std::thread & Client::getThread(){
+	return m_thread;
 }
 
 

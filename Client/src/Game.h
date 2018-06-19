@@ -8,7 +8,7 @@ class Client;
 
 class Game : public sf::Drawable {
 public:
-	enum Stage { InMenu, InQueue, InSingleplayer, InMultiplayer };
+	enum Stage { InMenu, InQueue, InSingleplayer, InMultiplayer, End };
 
 private:
 	Stage m_stage;
@@ -30,12 +30,14 @@ private:
 public:
 	bool m_updateGame;
 	Client * m_clientPtr;
+	Datagram::Sync m_syncPacket;
 
 public:
 	Game(int maxnPlayers, sf::IpAddress ip = sf::IpAddress::getLocalAddress() ,int gameTime = 180, bool collision = true);
 	~Game();
 
 	void loadMenu();
+	void loadStats(Datagram::EndGame * endGame);
 	void loadQueue();
 	void control(sf::Event& event, sf::RenderWindow& window);
 	void update();
@@ -59,12 +61,15 @@ private:
 	void controlQueue(sf::Event event, sf::RenderWindow& window);
 	void controlSingleplayer(sf::Event event, sf::RenderWindow& window);
 	void controlMultiplayer(sf::Event event, sf::RenderWindow& window);
+	void controlEnd(sf::Event event, sf::RenderWindow& window);
 
 	void updateMenu();
+	void updateEnd();
 	void updateQueue();
 	void updateSingleplayer();
 	void updateMultiplayer();
 
+	void drawEnd(sf::RenderTarget & target, sf::RenderStates states) const;
 	void drawMenu(sf::RenderTarget & target, sf::RenderStates states) const;
 	void drawQueue(sf::RenderTarget & target, sf::RenderStates states) const;
 	void drawGame(sf::RenderTarget & target, sf::RenderStates states) const;

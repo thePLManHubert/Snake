@@ -5,6 +5,10 @@ void Game::updateMenu() {
 	m_sprite.setTexture(m_texture);
 }
 
+void Game::updateEnd() {
+	m_sprite.setTexture(m_texture);
+}
+
 /*------------------------------------------------------------------------------------------*/
 
 void Game::updateQueue() {
@@ -37,8 +41,6 @@ void Game::updateMultiplayer() {
 		m_updateGame = false;
 		if (!m_snakesPtr) return;
 
-		// update czasu gry na sygna³ synchronizacji
-
-		m_scoreboardPtr->update();
+		m_scoreboardPtr->update(m_syncPacket.timeLeft);
 	}
 }

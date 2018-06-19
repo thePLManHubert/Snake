@@ -1,6 +1,10 @@
 #include "Game.h"
 
 
+void Game::drawEnd(sf::RenderTarget & target, sf::RenderStates states) const {
+	target.draw(m_sprite);
+}
+
 void Game::drawMenu(sf::RenderTarget & target, sf::RenderStates states) const {
 	target.draw(m_sprite);
 }

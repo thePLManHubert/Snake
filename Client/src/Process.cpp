@@ -48,10 +48,16 @@ void Client::process(Datagram::Quit * quit) {
 /*------------------------------------------------------------------------------------*/
 void Client::process(Datagram::Sync * sync) {
 	m_game->m_updateGame = true;
+	m_game->m_syncPacket = *sync;
 }
 
 void Client::process(Datagram::Reset * reset){
 	m_game->resetPlayerStatus(reset->playerID);
+}
+
+void Client::process(Datagram::EndGame * endGame) {
+	m_game->loadStats(endGame);
+	m_currentStage = Disconnected;
 }
 
 /*------------------------------------------------------------------------------------*/
@@ -72,6 +78,9 @@ void Game::setStage(Stage stage) {
 		startSingleplayer();
 		break;
 	case InMultiplayer:
+		break;
+	case End:
+		closeGame();
 		break;
 	}
 }

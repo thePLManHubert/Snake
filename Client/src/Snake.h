@@ -10,7 +10,7 @@ extern const int MAP_HEIGHT;
 
 class Snake : public sf::Drawable {
 public:
-	enum Direction { UP, DOWN, LEFT, RIGHT, STOP, FREEZE, RESET };
+	enum Direction { UP, DOWN, LEFT, RIGHT, STOP, FREEZE };
 
 	class Head : public Field {
 	private:

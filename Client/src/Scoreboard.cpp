@@ -1,6 +1,8 @@
 #include "Scoreboard.h"
 
 
+extern sf::Mutex mutex;
+
 Scoreboard::Scoreboard(Snake ** snakes, int nPlayers, sf::Clock * clock, int startTime, int height, const std::string & tileset, const std::string & fontName)
 	: m_nPlayers(nPlayers),
 	m_snakes(snakes),
@@ -113,6 +115,20 @@ void Scoreboard::updateTime() {
 }
 
 /*------------------------------------------------------------------------------------*/
+//		Odœwie¿a czas do koñca gry (multiplayer).
+/*------------------------------------------------------------------------------------*/
+void Scoreboard::updateTime(int time) {
+	m_min = time / 60;
+	m_sec = time % 60;
+
+	std::string zero_str = "0";
+	if (m_sec > 9) zero_str = "";
+	std::string time_str = std::to_string(m_min) + ":" + zero_str + std::to_string(m_sec);
+
+	m_timeText->setString(time_str);
+}
+
+/*------------------------------------------------------------------------------------*/
 //		Odœwie¿a czas do koñca gry. (multiplayer)
 /*------------------------------------------------------------------------------------*/
 void Scoreboard::updateTime(unsigned short time) {
@@ -136,6 +152,16 @@ void Scoreboard::updateTime(unsigned short time) {
 void Scoreboard::update() {
 	updateScore();
 	updateTime();
+}
+
+/*------------------------------------------------------------------------------------*/
+//		Zbiorcza funkcja odœwie¿aj¹ca dane o grze.
+/*------------------------------------------------------------------------------------*/
+void Scoreboard::update(int time) {
+	updateScore();
+	mutex.lock();
+	updateTime(time);
+	mutex.unlock();
 }
 
 /*------------------------------------------------------------------------------------*/

@@ -47,6 +47,9 @@ void Game::control(sf::Event & event, sf::RenderWindow& window) {
 	case InMultiplayer:
 		controlMultiplayer(event, window);
 		break;
+	case End:
+		controlEnd(event, window);
+		break;
 	}
 }
 
@@ -67,6 +70,9 @@ void Game::update() {
 	case InMultiplayer:
 		updateMultiplayer();
 		break;
+	case End:
+		updateEnd();
+		break;
 	}
 }
 
@@ -82,6 +88,9 @@ void Game::draw(sf::RenderTarget & target, sf::RenderStates states) const {
 	case InMultiplayer:
 		drawGame(target, states);
 		break;
+	case End:
+		drawEnd(target, states);
+		break;
 	}
 }
 
@@ -90,6 +99,21 @@ void Game::draw(sf::RenderTarget & target, sf::RenderStates states) const {
 /*------------------------------------------------------------------------------------*/
 void Game::loadMenu() {
 	if (!m_texture.loadFromFile("resources/SnakeMenu.png")) return;
+}
+
+/*------------------------------------------------------------------------------------*/
+//		Dokonuje jednorazowego za³adowania tekstury menu.
+/*------------------------------------------------------------------------------------*/
+void Game::loadStats(Datagram::EndGame * endGame) {
+	if (endGame->playerStatus == Datagram::Status::Win) {
+		if (!m_texture.loadFromFile("resources/Win.png")) return;
+	}
+	else if (endGame->playerStatus == Datagram::Status::Loss) {
+		if (!m_texture.loadFromFile("resources/Loss.png")) return;
+	}
+	else {
+		if (!m_texture.loadFromFile("resources/Draw.png")) return;
+	}
 }
 
 /*------------------------------------------------------------------------------------*/

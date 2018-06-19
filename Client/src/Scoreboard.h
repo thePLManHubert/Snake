@@ -28,10 +28,12 @@ private:
 	bool tick();
 	void updateScore();
 	void updateTime();
+	void updateTime(int time);
 	void updateTime(unsigned short time); // multiplayer
 
 public:
 	void update();
+	void update(int time);
 	void setTime(int time);
 	bool timeUp();
 
