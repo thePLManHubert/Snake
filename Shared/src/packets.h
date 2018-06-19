@@ -17,7 +17,8 @@ namespace Datagram {
 		DCPacket, 
 		SyncPacket, 
 		DirPacket,
-		ResetPacket
+		ResetPacket,
+		EndGamePacket
 	};
 	enum Direction { 
 		UP, 
@@ -25,8 +26,12 @@ namespace Datagram {
 		LEFT, 
 		RIGHT, 
 		STOP, 
-		FREEZE, 
-		RESET
+		FREEZE
+	};
+	enum Status {
+		Win,
+		Loss,
+		Draw
 	};
 
 	struct Request {
@@ -95,6 +100,7 @@ namespace Datagram {
 	struct Sync {
 
 		TypeOfPacket type = SyncPacket;
+		int timeLeft;
 
 	};
 
@@ -102,6 +108,14 @@ namespace Datagram {
 
 		TypeOfPacket type = ResetPacket;
 		PlayerID playerID;
+
+	};
+
+	struct EndGame {
+
+		TypeOfPacket type = EndGamePacket;
+		PlayerID playerID;
+		Status playerStatus;
 
 	};
 
