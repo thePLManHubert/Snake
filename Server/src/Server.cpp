@@ -2,6 +2,7 @@
 #include "Globals.h"
 #include <iostream>
 
+sf::Mutex mutex;
 
 /*------------------------------------------------------------------------------------*/
 //		Uruchamia nowy serwer pod wskazanym portem i w³¹cza nas³uchiwanie.
@@ -35,6 +36,10 @@ void Server::shutdown() {
 /*------------------------------------------------------------------------------------*/
 void Server::listen() {
 	while (m_listening) {
+		if (!m_playing) {
+			if(m_gameThread.joinable())
+			m_gameThread.join();
+		}
 		if (m_listeningSocket.receive(m_receivedData, MAX_DATA_SIZE, m_receivedSize, m_senderAddress, m_senderPort) == sf::Socket::Done) {
 			process(m_receivedData);
 		}
@@ -49,8 +54,15 @@ void Server::play() {
 	Datagram::Sync sync;
 	Datagram::Data data;
 	unsigned short limit;
+	
+	int chectTime = 0;
+	m_gameClock.restart();
 
 	while (m_playing) {
+		if (m_gameClock.getElapsedTime().asSeconds() > chectTime) {
+			chectTime++;
+			m_gameTime--;
+		}
 		if (clock.getElapsedTime().asSeconds() > 0.1) {
 			clock.restart();
 
@@ -114,14 +126,67 @@ void Server::play() {
 			}
 			// wyœlij sygna³ synchronizacji
 			for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
-				if (m_game.m_players[i])
+				if (m_game.m_players[i]) {
+					sync.timeLeft = m_gameTime;
 					broadcast(&sync, sizeof(Datagram::Sync), m_game.m_players[i]->ip, m_game.m_players[i]->port);
+				}
 			}
+			// gdy minie czas gry
+			if (m_gameTime == 0) {
+				checkWinner();
+			}
+
 		}
 		if (m_gameSocket.receive(m_receivedGameData, MAX_DATA_SIZE, m_receivedGameSize, m_playerAddress, m_playerPort) == sf::Socket::Done) {
 			process(m_receivedGameData);
 		}
 	}
+}
+
+void Server::stopGame() {
+	// wyrzuæ z gry wszystkich graczy i usuñ ich z listy
+	for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
+		if (m_game.m_players[i]){
+			delete m_game.m_players[i];
+			m_game.m_players[i] = nullptr;
+		}
+	}
+	m_gameTime = TIME;
+	m_gameSocket.unbind();
+	m_playing = false;
+}
+
+void Server::checkWinner() { // tylko dla dwóch graczy
+	using namespace Datagram;
+	EndGame endGame;
+
+	sf::sleep(sf::seconds(2));
+
+	if (m_game.m_players[0] && m_game.m_players[1]) {
+		if (m_game.m_players[0]->score > m_game.m_players[1]->score) {
+			endGame.playerID = m_game.m_players[0]->id;
+			endGame.playerStatus = Win;
+			broadcast(&endGame, sizeof(EndGame), m_game.m_players[0]->ip, m_game.m_players[0]->port);
+			endGame.playerID = m_game.m_players[1]->id;
+			endGame.playerStatus = Loss;
+			broadcast(&endGame, sizeof(EndGame), m_game.m_players[1]->ip, m_game.m_players[1]->port);
+		}
+		else if (m_game.m_players[0]->score < m_game.m_players[1]->score) {
+			endGame.playerID = m_game.m_players[0]->id;
+			endGame.playerStatus = Loss;
+			broadcast(&endGame, sizeof(EndGame), m_game.m_players[0]->ip, m_game.m_players[0]->port);
+			endGame.playerID = m_game.m_players[1]->id;
+			endGame.playerStatus = Win;
+			broadcast(&endGame, sizeof(EndGame), m_game.m_players[1]->ip, m_game.m_players[1]->port);
+		}
+		else {
+			endGame.playerStatus = Draw;
+			for (int i = 0; i < m_game.MAX_PLAYER_COUNT; i++) {
+				broadcast(&endGame, sizeof(EndGame), m_game.m_players[i]->ip, m_game.m_players[i]->port);
+			}
+		}
+	}
+	stopGame();
 }
 
 /*------------------------------------------------------------------------------------*/
@@ -261,6 +326,7 @@ void Server::process(Datagram::DC * dc) {
 			m_game.m_players[i]->score = 0;
 			m_game.m_players[i]->canMove = true;
 		}
+		m_gameTime = TIME;
 	}
 	// usuñ w¹tek gry, od³¹cz socket
 	if (m_playing) {

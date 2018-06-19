@@ -1,4 +1,5 @@
 #pragma once
+#include "Globals.h"
 #include "packets.h"
 #include "ServerGame.h"
 #include <SFML/Network.hpp>
@@ -25,6 +26,8 @@ private:
 	sf::IpAddress m_playerAddress;
 	unsigned short m_playerPort;
 	unsigned short m_senderPort;
+	sf::Clock m_gameClock;
+	int m_gameTime;
 	bool m_playerAdded;
 	ServerGame m_game;
 	bool m_checkCollision;
@@ -38,6 +41,7 @@ public:
 		m_playing(false),
 		m_checkCollision(true),
 		m_tickNoCollision(10),
+		m_gameTime(TIME),
 		m_playerAdded(false),
 		m_game(ServerGame())
 	{
@@ -51,6 +55,9 @@ public:
 private:
 	void listen();
 	void play();
+	void stopGame();
+	void checkWinner();
+
 	void process(void* packet);
 	void process(Datagram::Request * request);
 	void process(Datagram::Dir * dir);
