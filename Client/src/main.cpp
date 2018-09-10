@@ -21,12 +21,12 @@ int main()
 
 	// create game
 	//Game game(2);
-	Game game(2, "192.168.0.5");
+	Game game(2, "192.168.1.100");
 
 	sf::Clock clock;
 
 #ifdef DEBUG
-	window.setVerticalSyncEnabled(true);
+	window.setVerticalSyncEnabled(false);
 	sf::Clock clk;
 	sf::Clock fpsClock;
 #endif

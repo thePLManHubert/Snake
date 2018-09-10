@@ -33,7 +33,7 @@ public:
 	Datagram::Sync m_syncPacket;
 
 public:
-	Game(int maxnPlayers, sf::IpAddress ip = sf::IpAddress::getLocalAddress() ,int gameTime = 180, bool collision = true);
+	Game(int maxnPlayers, sf::IpAddress ip = "127.0.0.1" ,int gameTime = 180, bool collision = true);
 	~Game();
 
 	void loadMenu();

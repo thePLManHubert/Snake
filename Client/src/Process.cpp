@@ -11,7 +11,7 @@ void Client::process(Datagram::Data * data) {
 	if (data->playerID == this->getID()) {
 		unsigned short limit;
 		std::cout << "---------------------------------------------"
-			<< std::endl << "id: " << data->playerID << " " << data->direction << std::endl;
+			<< std::endl << "id: " << data->playerID << " " << data->directionToString() << std::endl;
 		std::cout << "fruit: " << data->fruit << std::endl;
 
 		limit = (data->score < 20) ? data->score : 19;
