@@ -88,6 +88,29 @@ namespace Datagram {
 		bool grow = false;
 		unsigned short position[20];
 
+		std::string directionToString(){
+			std::string dir = "";
+			switch (direction) {
+			case UP:
+				dir = "Up";
+				break;
+			case DOWN:
+				dir = "Down";
+				break;
+			case LEFT:
+				dir = "Left";
+				break;
+			case RIGHT:
+				dir = "Right";
+				break;
+			case STOP:
+				dir = "Stop";
+				break;
+			case FREEZE:
+				dir = "Freeze";
+			}
+			return dir;
+		}
 	};
 
 	struct DC {
